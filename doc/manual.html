@@ -542,7 +542,7 @@ Behavior similar to the addition operation.
 </li>
 
 <li><b><code>__concat</code>: </b>
-the concatenation (<code>..</code>) operation.
+the concatenation (<code>|</code>) operation.
 Behavior similar to the addition operation,
 except that Lua will try a metamethod
 if any operand is neither a string nor a number
@@ -1229,7 +1229,7 @@ The following strings denote other tokens:
      //
      ==    ~=    &lt;=    &gt;=    &lt;     &gt;     =
      (     )     {     }     [     ]     ::
-     ;     :     ,     .     ..    ...
+     ;     :     ,     .     |    ...
 </pre>
 
 <p>
@@ -2274,8 +2274,8 @@ Here are some examples:
 
 
 <h3>3.4.5 &ndash; <a name="3.4.5">Concatenation</a></h3><p>
-The string concatenation operator in Lua is
-denoted by two dots ('<code>..</code>').
+The string concatenation operator is
+denoted by a pipe character ('<code>|</code>').
 If both operands are strings or numbers,
 then the numbers are converted to strings
 in a non-specified format (see <a href="#3.4.2">&sect;3.4.2</a>).
@@ -2364,7 +2364,7 @@ from lower to higher priority:
      or
      and
      &lt;     &gt;     &lt;=    &gt;=    ~=    ==
-     ..
+     |
      +     -
      *     /     //    %
      unary operators (not   #     -)
@@ -2372,7 +2372,7 @@ from lower to higher priority:
 </pre><p>
 As usual,
 you can use parentheses to change the precedences of an expression.
-The concatenation ('<code>..</code>') and exponentiation ('<code>^</code>')
+The concatenation ('<code>|</code>') and exponentiation ('<code>^</code>')
 operators are right associative.
 All other binary operators are left associative.
 
@@ -9915,7 +9915,7 @@ in the tables given as arguments.
 
 <p>
 Given a list where all elements are strings or numbers,
-returns the string <code>list[i]..sep..list[i+1] &middot;&middot;&middot; sep..list[j]</code>.
+returns the string <code>list[i]|sep|list[i+1] &middot;&middot;&middot; sep|list[j]</code>.
 The default value for <code>sep</code> is the empty string,
 the default for <code>i</code> is 1,
 and the default for <code>j</code> is <code>#list</code>.
@@ -11941,7 +11941,7 @@ and LiteralString, see <a href="#3.1">&sect;3.1</a>.)
 	fieldsep ::= &lsquo;<b>,</b>&rsquo; | &lsquo;<b>;</b>&rsquo;
 
 	binop ::=  &lsquo;<b>+</b>&rsquo; | &lsquo;<b>-</b>&rsquo; | &lsquo;<b>*</b>&rsquo; | &lsquo;<b>/</b>&rsquo; | &lsquo;<b>//</b>&rsquo; | &lsquo;<b>^</b>&rsquo; | &lsquo;<b>%</b>&rsquo; | 
-		 &lsquo;<b>..</b>&rsquo; | 
+		 &lsquo;<b>|</b>&rsquo; | 
 		 &lsquo;<b>&lt;</b>&rsquo; | &lsquo;<b>&lt;=</b>&rsquo; | &lsquo;<b>&gt;</b>&rsquo; | &lsquo;<b>&gt;=</b>&rsquo; | &lsquo;<b>==</b>&rsquo; | &lsquo;<b>~=</b>&rsquo; | 
 		 <b>and</b> | <b>or</b>
 

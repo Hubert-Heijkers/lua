@@ -42,7 +42,7 @@ static const char *const luaX_tokens [] = {
     "end", "false", "for", "function", "goto", "if",
     "in", "local", "nil", "not", "or", "repeat",
     "return", "then", "true", "until", "while",
-    "//", "..", "...", "==", ">=", "<=", "~=",
+    "//", "...", "==", ">=", "<=", "~=",
     "::", "<eof>",
     "<number>", "<integer>", "<name>", "<string>"
 };
@@ -522,7 +522,7 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         if (check_next1(ls, '.')) {
           if (check_next1(ls, '.'))
             return TK_DOTS;   /* '...' */
-          else return TK_CONCAT;   /* '..' */
+          else return '.';   /* '..', concatenation operator in Lua, replaced by '|' */
         }
         else if (!lisdigit(ls->current)) return '.';
         else return read_numeral(ls, seminfo);
