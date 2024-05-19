@@ -110,12 +110,6 @@ typedef enum {
       luaC_barrierback(L, gcvalue(t), v); }
 
 
-/*
-** Shift right is the same as shift left with a negative 'y'
-*/
-#define luaV_shiftr(x,y)	luaV_shiftl(x,intop(-, 0, y))
-
-
 
 LUAI_FUNC int luaV_equalobj (lua_State *L, const TValue *t1, const TValue *t2);
 LUAI_FUNC int luaV_lessthan (lua_State *L, const TValue *l, const TValue *r);
@@ -135,7 +129,6 @@ LUAI_FUNC void luaV_concat (lua_State *L, int total);
 LUAI_FUNC lua_Integer luaV_idiv (lua_State *L, lua_Integer x, lua_Integer y);
 LUAI_FUNC lua_Integer luaV_mod (lua_State *L, lua_Integer x, lua_Integer y);
 LUAI_FUNC lua_Number luaV_modf (lua_State *L, lua_Number x, lua_Number y);
-LUAI_FUNC lua_Integer luaV_shiftl (lua_Integer x, lua_Integer y);
 LUAI_FUNC void luaV_objlen (lua_State *L, StkId ra, const TValue *rb);
 
 #endif

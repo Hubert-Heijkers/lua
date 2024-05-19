@@ -1308,17 +1308,10 @@ void luaK_indexed (FuncState *fs, expdesc *t, expdesc *k) {
 
 /*
 ** Return false if folding can raise an error.
-** Bitwise operations need operands convertible to integers; division
-** operations cannot have 0 as divisor.
+** Division operations cannot have 0 as divisor.
 */
 static int validop (int op, TValue *v1, TValue *v2) {
   switch (op) {
-    case LUA_OPBAND: case LUA_OPBOR: case LUA_OPBXOR:
-    case LUA_OPSHL: case LUA_OPSHR: case LUA_OPBNOT: {  /* conversion errors */
-      lua_Integer i;
-      return (luaV_tointegerns(v1, &i, LUA_FLOORN2I) &&
-              luaV_tointegerns(v2, &i, LUA_FLOORN2I));
-    }
     case LUA_OPDIV: case LUA_OPIDIV: case LUA_OPMOD:  /* division by 0 */
       return (nvalue(v2) != 0);
     default: return 1;  /* everything else is valid */
@@ -1356,7 +1349,7 @@ static int constfolding (FuncState *fs, int op, expdesc *e1,
 */
 l_sinline OpCode binopr2op (BinOpr opr, BinOpr baser, OpCode base) {
   lua_assert(baser <= opr &&
-            ((baser == OPR_ADD && opr <= OPR_SHR) ||
+            ((baser == OPR_ADD && opr <= OPR_IDIV) ||
              (baser == OPR_LT && opr <= OPR_LE)));
   return cast(OpCode, (cast_int(opr) - cast_int(baser)) + cast_int(base));
 }
@@ -1375,7 +1368,7 @@ l_sinline OpCode unopr2op (UnOpr opr) {
 ** Convert a BinOpr to a tag method  (ORDER OPR - ORDER TM)
 */
 l_sinline TMS binopr2TM (BinOpr opr) {
-  lua_assert(OPR_ADD <= opr && opr <= OPR_SHR);
+  lua_assert(OPR_ADD <= opr && opr <= OPR_IDIV);
   return cast(TMS, (cast_int(opr) - cast_int(OPR_ADD)) + cast_int(TM_ADD));
 }
 
@@ -1425,7 +1418,7 @@ static void codebinexpval (FuncState *fs, BinOpr opr,
   /* 'e1' must be already in a register or it is a constant */
   lua_assert((VNIL <= e1->k && e1->k <= VKSTR) ||
              e1->k == VNONRELOC || e1->k == VRELOC);
-  lua_assert(OP_ADD <= op && op <= OP_SHR);
+  lua_assert(OP_ADD <= op && op <= OP_IDIV);
   finishbinexpval(fs, e1, e2, op, v2, 0, line, OP_MMBIN, binopr2TM(opr));
 }
 
@@ -1525,24 +1518,6 @@ static void codecommutative (FuncState *fs, BinOpr op,
 
 
 /*
-** Code bitwise operations; they are all commutative, so the function
-** tries to put an integer constant as the 2nd operand (a K operand).
-*/
-static void codebitwise (FuncState *fs, BinOpr opr,
-                         expdesc *e1, expdesc *e2, int line) {
-  int flip = 0;
-  if (e1->k == VKINT) {
-    swapexps(e1, e2);  /* 'e2' will be the constant operand */
-    flip = 1;
-  }
-  if (e2->k == VKINT && luaK_exp2K(fs, e2))  /* K operand? */
-    codebinK(fs, opr, e1, e2, flip, line);
-  else  /* no constants */
-    codebinNoK(fs, opr, e1, e2, flip, line);
-}
-
-
-/*
 ** Emit code for order comparisons. When using an immediate operand,
 ** 'isfloat' tells whether the original value was a float.
 */
@@ -1613,7 +1588,7 @@ void luaK_prefix (FuncState *fs, UnOpr opr, expdesc *e, int line) {
   static const expdesc ef = {VKINT, {0}, NO_JUMP, NO_JUMP};
   luaK_dischargevars(fs, e);
   switch (opr) {
-    case OPR_MINUS: case OPR_BNOT:  /* use 'ef' as fake 2nd operand */
+    case OPR_MINUS:  /* use 'ef' as fake 2nd operand */
       if (constfolding(fs, opr + LUA_OPUNM, e, &ef))
         break;
       /* else */ /* FALLTHROUGH */
@@ -1647,9 +1622,7 @@ void luaK_infix (FuncState *fs, BinOpr op, expdesc *v) {
     }
     case OPR_ADD: case OPR_SUB:
     case OPR_MUL: case OPR_DIV: case OPR_IDIV:
-    case OPR_MOD: case OPR_POW:
-    case OPR_BAND: case OPR_BOR: case OPR_BXOR:
-    case OPR_SHL: case OPR_SHR: {
+    case OPR_MOD: case OPR_POW: {
       if (!tonumeral(v, NULL))
         luaK_exp2anyreg(fs, v);
       /* else keep numeral, which may be folded or used as an immediate
@@ -1733,29 +1706,6 @@ void luaK_posfix (FuncState *fs, BinOpr opr,
     }  /* FALLTHROUGH */
     case OPR_DIV: case OPR_IDIV: case OPR_MOD: case OPR_POW: {
       codearith(fs, opr, e1, e2, 0, line);
-      break;
-    }
-    case OPR_BAND: case OPR_BOR: case OPR_BXOR: {
-      codebitwise(fs, opr, e1, e2, line);
-      break;
-    }
-    case OPR_SHL: {
-      if (isSCint(e1)) {
-        swapexps(e1, e2);
-        codebini(fs, OP_SHLI, e1, e2, 1, line, TM_SHL);  /* I << r2 */
-      }
-      else if (finishbinexpneg(fs, e1, e2, OP_SHRI, line, TM_SHL)) {
-        /* coded as (r1 >> -I) */;
-      }
-      else  /* regular case (two registers) */
-       codebinexpval(fs, opr, e1, e2, line);
-      break;
-    }
-    case OPR_SHR: {
-      if (isSCint(e2))
-        codebini(fs, OP_SHRI, e1, e2, 0, line, TM_SHR);  /* r1 >> I */
-      else  /* regular case (two registers) */
-        codebinexpval(fs, opr, e1, e2, line);
       break;
     }
     case OPR_EQ: case OPR_NE: {

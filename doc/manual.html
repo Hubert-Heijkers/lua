@@ -175,7 +175,7 @@ where <em>n</em> is the number of bits of the integer type.)
 
 <p>
 Lua has explicit rules about when each subtype is used,
-but it also converts between them automatically as needed (see <a href="#3.4.3">&sect;3.4.3</a>).
+but it also converts between them automatically as needed (see <a href="#3.4.2">&sect;3.4.2</a>).
 Therefore,
 the programmer may choose to mostly ignore the difference
 between integers and floats
@@ -195,7 +195,7 @@ The length of any string in Lua must fit in a Lua integer.
 
 <p>
 Lua can call (and manipulate) functions written in Lua and
-functions written in C (see <a href="#3.4.10">&sect;3.4.10</a>).
+functions written in C (see <a href="#3.4.9">&sect;3.4.9</a>).
 Both are represented by the type <em>function</em>.
 
 
@@ -249,7 +249,7 @@ To represent records, Lua uses the field name as an index.
 The language supports this representation by
 providing <code>a.name</code> as syntactic sugar for <code>a["name"]</code>.
 There are several convenient ways to create tables in Lua
-(see <a href="#3.4.9">&sect;3.4.9</a>).
+(see <a href="#3.4.8">&sect;3.4.8</a>).
 
 
 <p>
@@ -258,7 +258,7 @@ the values of table fields can be of any type.
 In particular,
 because functions are first-class values,
 table fields can contain functions.
-Thus tables can also carry <em>methods</em> (see <a href="#3.4.11">&sect;3.4.11</a>).
+Thus tables can also carry <em>methods</em> (see <a href="#3.4.10">&sect;3.4.10</a>).
 
 
 <p>
@@ -541,39 +541,6 @@ the floor division (<code>//</code>) operation.
 Behavior similar to the addition operation.
 </li>
 
-<li><b><code>__band</code>: </b>
-the bitwise AND (<code>&amp;</code>) operation.
-Behavior similar to the addition operation,
-except that Lua will try a metamethod
-if any operand is neither an integer
-nor a float coercible to an integer (see <a href="#3.4.3">&sect;3.4.3</a>).
-</li>
-
-<li><b><code>__bor</code>: </b>
-the bitwise OR (<code>|</code>) operation.
-Behavior similar to the bitwise AND operation.
-</li>
-
-<li><b><code>__bxor</code>: </b>
-the bitwise exclusive OR (binary <code>~</code>) operation.
-Behavior similar to the bitwise AND operation.
-</li>
-
-<li><b><code>__bnot</code>: </b>
-the bitwise NOT (unary <code>~</code>) operation.
-Behavior similar to the bitwise AND operation.
-</li>
-
-<li><b><code>__shl</code>: </b>
-the bitwise left shift (<code>&lt;&lt;</code>) operation.
-Behavior similar to the bitwise AND operation.
-</li>
-
-<li><b><code>__shr</code>: </b>
-the bitwise right shift (<code>&gt;&gt;</code>) operation.
-Behavior similar to the bitwise AND operation.
-</li>
-
 <li><b><code>__concat</code>: </b>
 the concatenation (<code>..</code>) operation.
 Behavior similar to the addition operation,
@@ -592,7 +559,7 @@ and the result of the call
 (always adjusted to one value)
 is the result of the operation.
 If there is no metamethod but the object is a table,
-then Lua uses the table length operation (see <a href="#3.4.7">&sect;3.4.7</a>).
+then Lua uses the table length operation (see <a href="#3.4.6">&sect;3.4.6</a>).
 Otherwise, Lua raises an error.
 </li>
 
@@ -696,7 +663,7 @@ may be used by <a href="#pdf-tostring"><code>tostring</code></a> and in error me
 
 
 <p>
-For the unary operators (negation, length, and bitwise NOT),
+For the unary operators (negation and length),
 the metamethod is computed and called with a dummy second operand,
 equal to the first one.
 This extra operand is only to simplify Lua's internals
@@ -1259,7 +1226,7 @@ The following strings denote other tokens:
 
 <pre>
      +     -     *     /     %     ^     #
-     &amp;     ~     |     &lt;&lt;    &gt;&gt;    //
+     //
      ==    ~=    &lt;=    &gt;=    &lt;     &gt;     =
      (     )     {     }     [     ]     ::
      ;     :     ,     .     ..    ...
@@ -1575,7 +1542,7 @@ a chunk is simply a block:
 <p>
 Lua handles a chunk as the body of an anonymous function
 with a variable number of arguments
-(see <a href="#3.4.11">&sect;3.4.11</a>).
+(see <a href="#3.4.10">&sect;3.4.10</a>).
 As such, chunks can define local variables,
 receive arguments, and return values.
 Moreover, such anonymous function is compiled as in the
@@ -1623,7 +1590,7 @@ Expressions are discussed in <a href="#3.4">&sect;3.4</a>.
 <p>
 Before the assignment,
 the list of values is <em>adjusted</em> to the length of
-the list of variables (see <a href="#3.4.12">&sect;3.4.12</a>).
+the list of variables (see <a href="#3.4.11">&sect;3.4.11</a>).
 
 
 <p>
@@ -1911,7 +1878,7 @@ function calls can be executed as statements:
 	stat ::= functioncall
 </pre><p>
 In this case, all returned values are thrown away.
-Function calls are explained in <a href="#3.4.10">&sect;3.4.10</a>.
+Function calls are explained in <a href="#3.4.9">&sect;3.4.9</a>.
 
 
 
@@ -2043,24 +2010,22 @@ The basic expressions in Lua are the following:
 <p>
 Numerals and literal strings are explained in <a href="#3.1">&sect;3.1</a>;
 variables are explained in <a href="#3.2">&sect;3.2</a>;
-function definitions are explained in <a href="#3.4.11">&sect;3.4.11</a>;
-function calls are explained in <a href="#3.4.10">&sect;3.4.10</a>;
-table constructors are explained in <a href="#3.4.9">&sect;3.4.9</a>.
+function definitions are explained in <a href="#3.4.10">&sect;3.4.10</a>;
+function calls are explained in <a href="#3.4.9">&sect;3.4.9</a>;
+table constructors are explained in <a href="#3.4.8">&sect;3.4.8</a>.
 Vararg expressions,
 denoted by three dots ('<code>...</code>'), can only be used when
 directly inside a variadic function;
-they are explained in <a href="#3.4.11">&sect;3.4.11</a>.
+they are explained in <a href="#3.4.10">&sect;3.4.10</a>.
 
 
 <p>
 Binary operators comprise arithmetic operators (see <a href="#3.4.1">&sect;3.4.1</a>),
-bitwise operators (see <a href="#3.4.2">&sect;3.4.2</a>),
-relational operators (see <a href="#3.4.4">&sect;3.4.4</a>), logical operators (see <a href="#3.4.5">&sect;3.4.5</a>),
-and the concatenation operator (see <a href="#3.4.6">&sect;3.4.6</a>).
+relational operators (see <a href="#3.4.3">&sect;3.4.3</a>), logical operators (see <a href="#3.4.4">&sect;3.4.4</a>),
+and the concatenation operator (see <a href="#3.4.5">&sect;3.4.5</a>).
 Unary operators comprise the unary minus (see <a href="#3.4.1">&sect;3.4.1</a>),
-the unary bitwise NOT (see <a href="#3.4.2">&sect;3.4.2</a>),
-the unary logical <b>not</b> (see <a href="#3.4.5">&sect;3.4.5</a>),
-and the unary <em>length operator</em> (see <a href="#3.4.7">&sect;3.4.7</a>).
+the unary logical <b>not</b> (see <a href="#3.4.4">&sect;3.4.4</a>),
+and the unary <em>length operator</em> (see <a href="#3.4.6">&sect;3.4.6</a>).
 
 
 
@@ -2092,7 +2057,7 @@ for floating-point arithmetic
 (usually the IEEE 754 standard),
 and the result is a float.
 (The string library coerces strings to numbers in
-arithmetic operations; see <a href="#3.4.3">&sect;3.4.3</a> for details.)
+arithmetic operations; see <a href="#3.4.2">&sect;3.4.2</a> for details.)
 
 
 <p>
@@ -2120,40 +2085,9 @@ all operations <em>wrap around</em>.
 
 
 
-<h3>3.4.2 &ndash; <a name="3.4.2">Bitwise Operators</a></h3><p>
-Lua supports the following bitwise operators:
-
-<ul>
-<li><b><code>&amp;</code>: </b>bitwise AND</li>
-<li><b><code>&#124;</code>: </b>bitwise OR</li>
-<li><b><code>~</code>: </b>bitwise exclusive OR</li>
-<li><b><code>&gt;&gt;</code>: </b>right shift</li>
-<li><b><code>&lt;&lt;</code>: </b>left shift</li>
-<li><b><code>~</code>: </b>unary bitwise NOT</li>
-</ul>
-
-<p>
-All bitwise operations convert its operands to integers
-(see <a href="#3.4.3">&sect;3.4.3</a>),
-operate on all bits of those integers,
-and result in an integer.
-
-
-<p>
-Both right and left shifts fill the vacant bits with zeros.
-Negative displacements shift to the other direction;
-displacements with absolute values equal to or higher than
-the number of bits in an integer
-result in zero (as all bits are shifted out).
-
-
-
-
-
-<h3>3.4.3 &ndash; <a name="3.4.3">Coercions and Conversions</a></h3><p>
+<h3>3.4.2 &ndash; <a name="3.4.2">Coercions and Conversions</a></h3><p>
 Lua provides some automatic conversions between some
 types and representations at run time.
-Bitwise operators always convert float operands to integers.
 Exponentiation and float division
 always convert integer operands to floats.
 All other arithmetic operations applied to mixed numbers
@@ -2191,7 +2125,6 @@ strings to numbers in all arithmetic operations.
 If the conversion fails,
 the library calls the metamethod of the other operand
 (if present) or it raises an error.
-Note that bitwise operators do not do this coercion.
 
 
 <p>
@@ -2199,7 +2132,7 @@ It is always a good practice not to rely on the
 implicit coercions from strings to numbers,
 as they are not always applied;
 in particular, <code>"1"==1</code> is false and <code>"1"&lt;1</code> raises an error
-(see <a href="#3.4.4">&sect;3.4.4</a>).
+(see <a href="#3.4.3">&sect;3.4.3</a>).
 These coercions exist mainly for compatibility and may be removed
 in future versions of the language.
 
@@ -2229,7 +2162,7 @@ use the function <a href="#pdf-string.format"><code>string.format</code></a>.
 
 
 
-<h3>3.4.4 &ndash; <a name="3.4.4">Relational Operators</a></h3><p>
+<h3>3.4.3 &ndash; <a name="3.4.3">Relational Operators</a></h3><p>
 Lua supports the following relational operators:
 
 <ul>
@@ -2305,7 +2238,7 @@ nor equal to, nor greater than any value, including itself.
 
 
 
-<h3>3.4.5 &ndash; <a name="3.4.5">Logical Operators</a></h3><p>
+<h3>3.4.4 &ndash; <a name="3.4.4">Logical Operators</a></h3><p>
 The logical operators in Lua are
 <b>and</b>, <b>or</b>, and <b>not</b>.
 Like the control structures (see <a href="#3.3.4">&sect;3.3.4</a>),
@@ -2340,19 +2273,19 @@ Here are some examples:
 
 
 
-<h3>3.4.6 &ndash; <a name="3.4.6">Concatenation</a></h3><p>
+<h3>3.4.5 &ndash; <a name="3.4.5">Concatenation</a></h3><p>
 The string concatenation operator in Lua is
 denoted by two dots ('<code>..</code>').
 If both operands are strings or numbers,
 then the numbers are converted to strings
-in a non-specified format (see <a href="#3.4.3">&sect;3.4.3</a>).
+in a non-specified format (see <a href="#3.4.2">&sect;3.4.2</a>).
 Otherwise, the <code>__concat</code> metamethod is called (see <a href="#2.4">&sect;2.4</a>).
 
 
 
 
 
-<h3>3.4.7 &ndash; <a name="3.4.7">The Length Operator</a></h3>
+<h3>3.4.6 &ndash; <a name="3.4.6">The Length Operator</a></h3>
 
 <p>
 The length operator is denoted by the unary prefix operator <code>#</code>.
@@ -2423,7 +2356,7 @@ any value but strings through the <code>__len</code> metamethod (see <a href="#2
 
 
 
-<h3>3.4.8 &ndash; <a name="3.4.8">Precedence</a></h3><p>
+<h3>3.4.7 &ndash; <a name="3.4.7">Precedence</a></h3><p>
 Operator precedence in Lua follows the table below,
 from lower to higher priority:
 
@@ -2431,14 +2364,10 @@ from lower to higher priority:
      or
      and
      &lt;     &gt;     &lt;=    &gt;=    ~=    ==
-     |
-     ~
-     &amp;
-     &lt;&lt;    &gt;&gt;
      ..
      +     -
      *     /     //    %
-     unary operators (not   #     -     ~)
+     unary operators (not   #     -)
      ^
 </pre><p>
 As usual,
@@ -2451,7 +2380,7 @@ All other binary operators are left associative.
 
 
 
-<h3>3.4.9 &ndash; <a name="3.4.9">Table Constructors</a></h3><p>
+<h3>3.4.8 &ndash; <a name="3.4.8">Table Constructors</a></h3><p>
 Table constructors are expressions that create tables.
 Every time a constructor is evaluated, a new table is created.
 A constructor can be used to create an empty table
@@ -2504,7 +2433,7 @@ The order of the assignments in a constructor is undefined.
 If the last field in the list has the form <code>exp</code>
 and the expression is a multires expression,
 then all values returned by this expression enter the list consecutively
-(see <a href="#3.4.12">&sect;3.4.12</a>).
+(see <a href="#3.4.11">&sect;3.4.11</a>).
 
 
 <p>
@@ -2515,7 +2444,7 @@ as a convenience for machine-generated code.
 
 
 
-<h3>3.4.10 &ndash; <a name="3.4.10">Function Calls</a></h3><p>
+<h3>3.4.9 &ndash; <a name="3.4.9">Function Calls</a></h3><p>
 A function call in Lua has the following syntax:
 
 <pre>
@@ -2593,7 +2522,7 @@ So, none of the following examples are tail calls:
 
 
 
-<h3>3.4.11 &ndash; <a name="3.4.11">Function Definitions</a></h3>
+<h3>3.4.10 &ndash; <a name="3.4.10">Function Definitions</a></h3>
 
 <p>
 The syntax for function definition is
@@ -2671,7 +2600,7 @@ initialized with the argument values:
 </pre><p>
 When a Lua function is called,
 it adjusts its list of arguments to
-the length of its list of parameters (see <a href="#3.4.12">&sect;3.4.12</a>),
+the length of its list of parameters (see <a href="#3.4.11">&sect;3.4.11</a>),
 unless the function is a <em>variadic function</em>,
 which is indicated by three dots ('<code>...</code>')
 at the end of its parameter list.
@@ -2680,7 +2609,7 @@ instead, it collects all extra arguments and supplies them
 to the function through a <em>vararg expression</em>,
 which is also written as three dots.
 The value of this expression is a list of all actual extra arguments,
-similar to a function with multiple results (see <a href="#3.4.12">&sect;3.4.12</a>).
+similar to a function with multiple results (see <a href="#3.4.11">&sect;3.4.11</a>).
 
 
 <p>
@@ -2741,7 +2670,7 @@ is syntactic sugar for
 
 
 
-<h3>3.4.12 &ndash; <a name="3.4.12">Lists of expressions, multiple results,
+<h3>3.4.11 &ndash; <a name="3.4.11">Lists of expressions, multiple results,
 and adjustment</a></h3>
 
 <p>
@@ -2768,10 +2697,10 @@ These are the places where Lua expects a list of expressions:
 for instance <code>return e1, e2, e3</code> (see <a href="#3.3.4">&sect;3.3.4</a>).</li>
 
 <li>A table constructor,
-for instance <code>{e1, e2, e3}</code> (see <a href="#3.4.9">&sect;3.4.9</a>).</li>
+for instance <code>{e1, e2, e3}</code> (see <a href="#3.4.8">&sect;3.4.8</a>).</li>
 
 <li>The arguments of a function call,
-for instance <code>foo(e1, e2, e3)</code> (see <a href="#3.4.10">&sect;3.4.10</a>).</li>
+for instance <code>foo(e1, e2, e3)</code> (see <a href="#3.4.9">&sect;3.4.9</a>).</li>
 
 <li>A multiple assignment,
 for instance <code>a , b, c = e1, e2, e3</code> (see <a href="#3.3.3">&sect;3.3.3</a>).</li>
@@ -2787,7 +2716,7 @@ In the last four cases,
 the list of values from the list of expressions
 must be <em>adjusted</em> to a specific length:
 the number of parameters in a call to a non-variadic function
-(see <a href="#3.4.11">&sect;3.4.11</a>),
+(see <a href="#3.4.10">&sect;3.4.10</a>),
 the number of variables in a multiple assignment or
 a local declaration,
 and exactly four values for a generic <b>for</b> loop.
@@ -3605,7 +3534,7 @@ that <code>free(NULL)</code> has no effect and that
 <pre>void lua_arith (lua_State *L, int op);</pre>
 
 <p>
-Performs an arithmetic or bitwise operation over the two values
+Performs an arithmetic operation over the two values
 (or one, in the case of negations)
 at the top of the stack,
 with the value on the top being the second operand,
@@ -3627,12 +3556,6 @@ The value of <code>op</code> must be one of the following constants:
 <li><b><a name="pdf-LUA_OPMOD"><code>LUA_OPMOD</code></a>: </b> performs modulo (<code>%</code>)</li>
 <li><b><a name="pdf-LUA_OPPOW"><code>LUA_OPPOW</code></a>: </b> performs exponentiation (<code>^</code>)</li>
 <li><b><a name="pdf-LUA_OPUNM"><code>LUA_OPUNM</code></a>: </b> performs mathematical negation (unary <code>-</code>)</li>
-<li><b><a name="pdf-LUA_OPBNOT"><code>LUA_OPBNOT</code></a>: </b> performs bitwise NOT (<code>~</code>)</li>
-<li><b><a name="pdf-LUA_OPBAND"><code>LUA_OPBAND</code></a>: </b> performs bitwise AND (<code>&amp;</code>)</li>
-<li><b><a name="pdf-LUA_OPBOR"><code>LUA_OPBOR</code></a>: </b> performs bitwise OR (<code>|</code>)</li>
-<li><b><a name="pdf-LUA_OPBXOR"><code>LUA_OPBXOR</code></a>: </b> performs bitwise exclusive OR (<code>~</code>)</li>
-<li><b><a name="pdf-LUA_OPSHL"><code>LUA_OPSHL</code></a>: </b> performs left shift (<code>&lt;&lt;</code>)</li>
-<li><b><a name="pdf-LUA_OPSHR"><code>LUA_OPSHR</code></a>: </b> performs right shift (<code>&gt;&gt;</code>)</li>
 
 </ul>
 
@@ -3914,7 +3837,7 @@ If <code>n</code>&nbsp;is&nbsp;1, the result is the single value on the stack
 (that is, the function does nothing);
 if <code>n</code> is 0, the result is the empty string.
 Concatenation is performed following the usual semantics of Lua
-(see <a href="#3.4.6">&sect;3.4.6</a>).
+(see <a href="#3.4.5">&sect;3.4.5</a>).
 
 
 
@@ -4475,7 +4398,7 @@ Type for continuation functions (see <a href="#4.5">&sect;4.5</a>).
 
 <p>
 Returns the length of the value at the given index.
-It is equivalent to the '<code>#</code>' operator in Lua (see <a href="#3.4.7">&sect;3.4.7</a>) and
+It is equivalent to the '<code>#</code>' operator in Lua (see <a href="#3.4.6">&sect;3.4.6</a>) and
 may trigger a metamethod for the "length" event (see <a href="#2.4">&sect;2.4</a>).
 The result is pushed on the stack.
 
@@ -5626,7 +5549,7 @@ Equivalent to <a href="#lua_tointegerx"><code>lua_tointegerx</code></a> with <co
 Converts the Lua value at the given index
 to the signed integral type <a href="#lua_Integer"><code>lua_Integer</code></a>.
 The Lua value must be an integer,
-or a number or string convertible to an integer (see <a href="#3.4.3">&sect;3.4.3</a>);
+or a number or string convertible to an integer (see <a href="#3.4.2">&sect;3.4.2</a>);
 otherwise, <code>lua_tointegerx</code> returns&nbsp;0.
 
 
@@ -5686,7 +5609,7 @@ Equivalent to <a href="#lua_tonumberx"><code>lua_tonumberx</code></a> with <code
 Converts the Lua value at the given index
 to the C&nbsp;type <a href="#lua_Number"><code>lua_Number</code></a> (see <a href="#lua_Number"><code>lua_Number</code></a>).
 The Lua value must be a number or a string convertible to a number
-(see <a href="#3.4.3">&sect;3.4.3</a>);
+(see <a href="#3.4.2">&sect;3.4.2</a>);
 otherwise, <a href="#lua_tonumberx"><code>lua_tonumberx</code></a> returns&nbsp;0.
 
 
@@ -7190,7 +7113,7 @@ Pushes the resulting string on the stack and returns it.
 <p>
 Returns the "length" of the value at the given index
 as a number;
-it is equivalent to the '<code>#</code>' operator in Lua (see <a href="#3.4.7">&sect;3.4.7</a>).
+it is equivalent to the '<code>#</code>' operator in Lua (see <a href="#3.4.6">&sect;3.4.6</a>).
 Raises an error if the result of the operation is not an integer.
 (This case can only happen through metamethods.)
 
@@ -9981,7 +9904,7 @@ It provides all its functions inside the table <a name="pdf-table"><code>table</
 
 <p>
 Remember that, whenever an operation needs the length of a table,
-all caveats about the length operator apply (see <a href="#3.4.7">&sect;3.4.7</a>).
+all caveats about the length operator apply (see <a href="#3.4.6">&sect;3.4.6</a>).
 All functions ignore non-numeric keys
 in the tables given as arguments.
 
@@ -11789,10 +11712,10 @@ change between versions.
 
 <li>
 The coercion of strings to numbers in
-arithmetic and bitwise operations
+arithmetic operations
 has been removed from the core language.
 The string library does a similar job
-for arithmetic (but not for bitwise) operations
+for arithmetic operations
 using the string metamethods.
 However, unlike in previous versions,
 the new implementation preserves the implicit type of the numeral
@@ -11946,7 +11869,7 @@ Here is the complete syntax of Lua in extended BNF.
 As usual in extended BNF,
 {A} means 0 or more As,
 and [A] means an optional A.
-(For operator precedences, see <a href="#3.4.8">&sect;3.4.8</a>;
+(For operator precedences, see <a href="#3.4.7">&sect;3.4.7</a>;
 for a description of the terminals
 Name, Numeral,
 and LiteralString, see <a href="#3.1">&sect;3.1</a>.)
@@ -12018,11 +11941,11 @@ and LiteralString, see <a href="#3.1">&sect;3.1</a>.)
 	fieldsep ::= &lsquo;<b>,</b>&rsquo; | &lsquo;<b>;</b>&rsquo;
 
 	binop ::=  &lsquo;<b>+</b>&rsquo; | &lsquo;<b>-</b>&rsquo; | &lsquo;<b>*</b>&rsquo; | &lsquo;<b>/</b>&rsquo; | &lsquo;<b>//</b>&rsquo; | &lsquo;<b>^</b>&rsquo; | &lsquo;<b>%</b>&rsquo; | 
-		 &lsquo;<b>&amp;</b>&rsquo; | &lsquo;<b>~</b>&rsquo; | &lsquo;<b>|</b>&rsquo; | &lsquo;<b>&gt;&gt;</b>&rsquo; | &lsquo;<b>&lt;&lt;</b>&rsquo; | &lsquo;<b>..</b>&rsquo; | 
+		 &lsquo;<b>..</b>&rsquo; | 
 		 &lsquo;<b>&lt;</b>&rsquo; | &lsquo;<b>&lt;=</b>&rsquo; | &lsquo;<b>&gt;</b>&rsquo; | &lsquo;<b>&gt;=</b>&rsquo; | &lsquo;<b>==</b>&rsquo; | &lsquo;<b>~=</b>&rsquo; | 
 		 <b>and</b> | <b>or</b>
 
-	unop ::= &lsquo;<b>-</b>&rsquo; | <b>not</b> | &lsquo;<b>#</b>&rsquo; | &lsquo;<b>~</b>&rsquo;
+	unop ::= &lsquo;<b>-</b>&rsquo; | <b>not</b> | &lsquo;<b>#</b>&rsquo;
 
 </pre>
 

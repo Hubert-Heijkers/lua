@@ -616,7 +616,6 @@ static const char *funcnamefromcode (lua_State *L, const Proto *p,
       break;
     }
     case OP_UNM: tm = TM_UNM; break;
-    case OP_BNOT: tm = TM_BNOT; break;
     case OP_LEN: tm = TM_LEN; break;
     case OP_CONCAT: tm = TM_CONCAT; break;
     case OP_EQ: tm = TM_EQ; break;

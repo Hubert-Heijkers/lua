@@ -27,9 +27,6 @@ typedef enum BinOpr {
   /* arithmetic operators */
   OPR_ADD, OPR_SUB, OPR_MUL, OPR_MOD, OPR_POW,
   OPR_DIV, OPR_IDIV,
-  /* bitwise operators */
-  OPR_BAND, OPR_BOR, OPR_BXOR,
-  OPR_SHL, OPR_SHR,
   /* string operator */
   OPR_CONCAT,
   /* comparison operators */
@@ -41,14 +38,14 @@ typedef enum BinOpr {
 } BinOpr;
 
 
-/* true if operation is foldable (that is, it is arithmetic or bitwise) */
-#define foldbinop(op)	((op) <= OPR_SHR)
+/* true if operation is foldable (that is, it is arithmetic) */
+#define foldbinop(op)	((op) <= OPR_IDIV)
 
 
 #define luaK_codeABC(fs,o,a,b,c)	luaK_codeABCk(fs,o,a,b,c,0)
 
 
-typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
+typedef enum UnOpr { OPR_MINUS, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
 
 
 /* get (pointer to) instruction of given 'expdesc' */

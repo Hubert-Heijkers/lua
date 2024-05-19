@@ -762,25 +762,6 @@ lua_Number luaV_modf (lua_State *L, lua_Number m, lua_Number n) {
 }
 
 
-/* number of bits in an integer */
-#define NBITS	cast_int(sizeof(lua_Integer) * CHAR_BIT)
-
-
-/*
-** Shift left operation. (Shift right just negates 'y'.)
-*/
-lua_Integer luaV_shiftl (lua_Integer x, lua_Integer y) {
-  if (y < 0) {  /* shift right? */
-    if (y <= -NBITS) return 0;
-    else return intop(>>, x, -y);
-  }
-  else {  /* shift left */
-    if (y >= NBITS) return 0;
-    else return intop(<<, x, y);
-  }
-}
-
-
 /*
 ** create a new Lua closure, push it in the stack, and initialize
 ** its upvalues.
@@ -816,7 +797,7 @@ void luaV_finishOp (lua_State *L) {
       setobjs2s(L, base + GETARG_A(*(ci->u.l.savedpc - 2)), --L->top.p);
       break;
     }
-    case OP_UNM: case OP_BNOT: case OP_LEN:
+    case OP_UNM: case OP_LEN:
     case OP_GETTABUP: case OP_GETTABLE: case OP_GETI:
     case OP_GETFIELD: case OP_SELF: {
       setobjs2s(L, base + GETARG_A(inst), --L->top.p);
@@ -876,7 +857,7 @@ void luaV_finishOp (lua_State *L) {
 
 /*
 ** {==================================================================
-** Macros for arithmetic/bitwise/comparison opcodes in 'luaV_execute'
+** Macros for arithmetic/comparison opcodes in 'luaV_execute'
 ** ===================================================================
 */
 
@@ -971,33 +952,6 @@ void luaV_finishOp (lua_State *L) {
   TValue *v1 = vRB(i);  \
   TValue *v2 = KC(i); lua_assert(ttisnumber(v2));  \
   op_arith_aux(L, v1, v2, iop, fop); }
-
-
-/*
-** Bitwise operations with constant operand.
-*/
-#define op_bitwiseK(L,op) {  \
-  StkId ra = RA(i); \
-  TValue *v1 = vRB(i);  \
-  TValue *v2 = KC(i);  \
-  lua_Integer i1;  \
-  lua_Integer i2 = ivalue(v2);  \
-  if (tointegerns(v1, &i1)) {  \
-    pc++; setivalue(s2v(ra), op(i1, i2));  \
-  }}
-
-
-/*
-** Bitwise operations with register operands.
-*/
-#define op_bitwise(L,op) {  \
-  StkId ra = RA(i); \
-  TValue *v1 = vRB(i);  \
-  TValue *v2 = vRC(i);  \
-  lua_Integer i1; lua_Integer i2;  \
-  if (tointegerns(v1, &i1) && tointegerns(v2, &i2)) {  \
-    pc++; setivalue(s2v(ra), op(i1, i2));  \
-  }}
 
 
 /*
@@ -1427,38 +1381,6 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         op_arithK(L, luaV_idiv, luai_numidiv);
         vmbreak;
       }
-      vmcase(OP_BANDK) {
-        op_bitwiseK(L, l_band);
-        vmbreak;
-      }
-      vmcase(OP_BORK) {
-        op_bitwiseK(L, l_bor);
-        vmbreak;
-      }
-      vmcase(OP_BXORK) {
-        op_bitwiseK(L, l_bxor);
-        vmbreak;
-      }
-      vmcase(OP_SHRI) {
-        StkId ra = RA(i);
-        TValue *rb = vRB(i);
-        int ic = GETARG_sC(i);
-        lua_Integer ib;
-        if (tointegerns(rb, &ib)) {
-          pc++; setivalue(s2v(ra), luaV_shiftl(ib, -ic));
-        }
-        vmbreak;
-      }
-      vmcase(OP_SHLI) {
-        StkId ra = RA(i);
-        TValue *rb = vRB(i);
-        int ic = GETARG_sC(i);
-        lua_Integer ib;
-        if (tointegerns(rb, &ib)) {
-          pc++; setivalue(s2v(ra), luaV_shiftl(ic, ib));
-        }
-        vmbreak;
-      }
       vmcase(OP_ADD) {
         op_arith(L, l_addi, luai_numadd);
         vmbreak;
@@ -1489,33 +1411,13 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         op_arith(L, luaV_idiv, luai_numidiv);
         vmbreak;
       }
-      vmcase(OP_BAND) {
-        op_bitwise(L, l_band);
-        vmbreak;
-      }
-      vmcase(OP_BOR) {
-        op_bitwise(L, l_bor);
-        vmbreak;
-      }
-      vmcase(OP_BXOR) {
-        op_bitwise(L, l_bxor);
-        vmbreak;
-      }
-      vmcase(OP_SHR) {
-        op_bitwise(L, luaV_shiftr);
-        vmbreak;
-      }
-      vmcase(OP_SHL) {
-        op_bitwise(L, luaV_shiftl);
-        vmbreak;
-      }
       vmcase(OP_MMBIN) {
         StkId ra = RA(i);
         Instruction pi = *(pc - 2);  /* original arith. expression */
         TValue *rb = vRB(i);
         TMS tm = (TMS)GETARG_C(i);
         StkId result = RA(pi);
-        lua_assert(OP_ADD <= GET_OPCODE(pi) && GET_OPCODE(pi) <= OP_SHR);
+        lua_assert(OP_ADD <= GET_OPCODE(pi) && GET_OPCODE(pi) <= OP_IDIV);
         Protect(luaT_trybinTM(L, s2v(ra), rb, result, tm));
         vmbreak;
       }
@@ -1552,17 +1454,6 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         }
         else
           Protect(luaT_trybinTM(L, rb, rb, ra, TM_UNM));
-        vmbreak;
-      }
-      vmcase(OP_BNOT) {
-        StkId ra = RA(i);
-        TValue *rb = vRB(i);
-        lua_Integer ib;
-        if (tointegerns(rb, &ib)) {
-          setivalue(s2v(ra), intop(^, ~l_castS2U(0), ib));
-        }
-        else
-          Protect(luaT_trybinTM(L, rb, rb, ra, TM_BNOT));
         vmbreak;
       }
       vmcase(OP_NOT) {

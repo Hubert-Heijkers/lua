@@ -465,24 +465,6 @@ static void PrintCode(const Proto* f)
 	printf("%d %d %d",a,b,c);
 	printf(COMMENT); PrintConstant(f,c);
 	break;
-   case OP_BANDK:
-	printf("%d %d %d",a,b,c);
-	printf(COMMENT); PrintConstant(f,c);
-	break;
-   case OP_BORK:
-	printf("%d %d %d",a,b,c);
-	printf(COMMENT); PrintConstant(f,c);
-	break;
-   case OP_BXORK:
-	printf("%d %d %d",a,b,c);
-	printf(COMMENT); PrintConstant(f,c);
-	break;
-   case OP_SHRI:
-	printf("%d %d %d",a,b,sc);
-	break;
-   case OP_SHLI:
-	printf("%d %d %d",a,b,sc);
-	break;
    case OP_ADD:
 	printf("%d %d %d",a,b,c);
 	break;
@@ -504,21 +486,6 @@ static void PrintCode(const Proto* f)
    case OP_IDIV:
 	printf("%d %d %d",a,b,c);
 	break;
-   case OP_BAND:
-	printf("%d %d %d",a,b,c);
-	break;
-   case OP_BOR:
-	printf("%d %d %d",a,b,c);
-	break;
-   case OP_BXOR:
-	printf("%d %d %d",a,b,c);
-	break;
-   case OP_SHL:
-	printf("%d %d %d",a,b,c);
-	break;
-   case OP_SHR:
-	printf("%d %d %d",a,b,c);
-	break;
    case OP_MMBIN:
 	printf("%d %d %d",a,b,c);
 	printf(COMMENT "%s",eventname(c));
@@ -534,9 +501,6 @@ static void PrintCode(const Proto* f)
 	if (isk) printf(" flip");
 	break;
    case OP_UNM:
-	printf("%d %d",a,b);
-	break;
-   case OP_BNOT:
 	printf("%d %d",a,b);
 	break;
    case OP_NOT:

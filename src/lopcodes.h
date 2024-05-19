@@ -234,13 +234,6 @@ OP_POWK,/*	A B C	R[A] := R[B] ^ K[C]:number			*/
 OP_DIVK,/*	A B C	R[A] := R[B] / K[C]:number			*/
 OP_IDIVK,/*	A B C	R[A] := R[B] // K[C]:number			*/
 
-OP_BANDK,/*	A B C	R[A] := R[B] & K[C]:integer			*/
-OP_BORK,/*	A B C	R[A] := R[B] | K[C]:integer			*/
-OP_BXORK,/*	A B C	R[A] := R[B] ~ K[C]:integer			*/
-
-OP_SHRI,/*	A B sC	R[A] := R[B] >> sC				*/
-OP_SHLI,/*	A B sC	R[A] := sC << R[B]				*/
-
 OP_ADD,/*	A B C	R[A] := R[B] + R[C]				*/
 OP_SUB,/*	A B C	R[A] := R[B] - R[C]				*/
 OP_MUL,/*	A B C	R[A] := R[B] * R[C]				*/
@@ -249,18 +242,11 @@ OP_POW,/*	A B C	R[A] := R[B] ^ R[C]				*/
 OP_DIV,/*	A B C	R[A] := R[B] / R[C]				*/
 OP_IDIV,/*	A B C	R[A] := R[B] // R[C]				*/
 
-OP_BAND,/*	A B C	R[A] := R[B] & R[C]				*/
-OP_BOR,/*	A B C	R[A] := R[B] | R[C]				*/
-OP_BXOR,/*	A B C	R[A] := R[B] ~ R[C]				*/
-OP_SHL,/*	A B C	R[A] := R[B] << R[C]				*/
-OP_SHR,/*	A B C	R[A] := R[B] >> R[C]				*/
-
 OP_MMBIN,/*	A B C	call C metamethod over R[A] and R[B]	(*)	*/
 OP_MMBINI,/*	A sB C k	call C metamethod over R[A] and sB	*/
 OP_MMBINK,/*	A B C k		call C metamethod over R[A] and K[B]	*/
 
 OP_UNM,/*	A B	R[A] := -R[B]					*/
-OP_BNOT,/*	A B	R[A] := ~R[B]					*/
 OP_NOT,/*	A B	R[A] := not R[B]				*/
 OP_LEN,/*	A B	R[A] := #R[B] (length operator)			*/
 
@@ -321,9 +307,9 @@ OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
   value, in a code equivalent to (not cond ? false : true).  (It
   produces false and skips the next instruction producing true.)
 
-  (*) Opcodes OP_MMBIN and variants follow each arithmetic and
-  bitwise opcode. If the operation succeeds, it skips this next
-  opcode. Otherwise, this opcode calls the corresponding metamethod.
+  (*) Opcodes OP_MMBIN and variants follow each arithmetic opcode.
+  If the operation succeeds, it skips this next opcode. Otherwise, 
+  this opcode calls the corresponding metamethod.
 
   (*) Opcode OP_TESTSET is used in short-circuit expressions that need
   both to jump and to produce a value, such as (a = b or c).

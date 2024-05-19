@@ -58,13 +58,7 @@ static lua_Integer intarith (lua_State *L, int op, lua_Integer v1,
     case LUA_OPMUL:return intop(*, v1, v2);
     case LUA_OPMOD: return luaV_mod(L, v1, v2);
     case LUA_OPIDIV: return luaV_idiv(L, v1, v2);
-    case LUA_OPBAND: return intop(&, v1, v2);
-    case LUA_OPBOR: return intop(|, v1, v2);
-    case LUA_OPBXOR: return intop(^, v1, v2);
-    case LUA_OPSHL: return luaV_shiftl(v1, v2);
-    case LUA_OPSHR: return luaV_shiftr(v1, v2);
     case LUA_OPUNM: return intop(-, 0, v1);
-    case LUA_OPBNOT: return intop(^, ~l_castS2U(0), v1);
     default: lua_assert(0); return 0;
   }
 }
@@ -89,16 +83,6 @@ static lua_Number numarith (lua_State *L, int op, lua_Number v1,
 int luaO_rawarith (lua_State *L, int op, const TValue *p1, const TValue *p2,
                    TValue *res) {
   switch (op) {
-    case LUA_OPBAND: case LUA_OPBOR: case LUA_OPBXOR:
-    case LUA_OPSHL: case LUA_OPSHR:
-    case LUA_OPBNOT: {  /* operate only on integers */
-      lua_Integer i1; lua_Integer i2;
-      if (tointegerns(p1, &i1) && tointegerns(p2, &i2)) {
-        setivalue(res, intarith(L, op, i1, i2));
-        return 1;
-      }
-      else return 0;  /* fail */
-    }
     case LUA_OPDIV: case LUA_OPPOW: {  /* operate only on floats */
       lua_Number n1; lua_Number n2;
       if (tonumberns(p1, n1) && tonumberns(p2, n2)) {
