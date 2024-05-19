@@ -264,7 +264,7 @@ OP_BNOT,/*	A B	R[A] := ~R[B]					*/
 OP_NOT,/*	A B	R[A] := not R[B]				*/
 OP_LEN,/*	A B	R[A] := #R[B] (length operator)			*/
 
-OP_CONCAT,/*	A B	R[A] := R[A].. ... ..R[A + B - 1]		*/
+OP_CONCAT,/*	A B	R[A] := R[A] | ... | R[A + B - 1]		*/
 
 OP_CLOSE,/*	A	close all upvalues >= R[A]			*/
 OP_TBC,/*	A	mark variable A "to be closed"			*/

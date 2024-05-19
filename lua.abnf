@@ -60,7 +60,7 @@
 	fieldsep ::= "," | ";"
 
 	binop ::=  "+" | "-" | "*" | "/" | "//" | "^" | "%" | 
-		 band | bor | bxor | shl | shr | ".." | 
+		 band | bor | bxor | shl | shr | "|" | 
 		 "<" | "<=" | ">" | ">=" | "==" | "~=" | 
 		 and | or
 

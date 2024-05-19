@@ -1679,8 +1679,8 @@ void luaK_infix (FuncState *fs, BinOpr op, expdesc *v) {
 }
 
 /*
-** Create code for '(e1 .. e2)'.
-** For '(e1 .. e2.1 .. e2.2)' (which is '(e1 .. (e2.1 .. e2.2))',
+** Create code for '(e1 | e2)'.
+** For '(e1 | e2.1 | e2.2)' (which is '(e1 | (e2.1 | e2.2))',
 ** because concatenation is right associative), merge both CONCATs.
 */
 static void codeconcat (FuncState *fs, expdesc *e1, expdesc *e2, int line) {
@@ -1721,7 +1721,7 @@ void luaK_posfix (FuncState *fs, BinOpr opr,
       *e1 = *e2;
       break;
     }
-    case OPR_CONCAT: {  /* e1 .. e2 */
+    case OPR_CONCAT: {  /* e1 | e2 */
       luaK_exp2nextreg(fs, e2);
       codeconcat(fs, e1, e2, line);
       break;
