@@ -2460,9 +2460,8 @@ The general syntax for constructors is
 
 <pre>
 	tableconstructor ::= &lsquo;<b>{</b>&rsquo; [fieldlist] &lsquo;<b>}</b>&rsquo;
-	fieldlist ::= field {fieldsep field} [fieldsep]
+	fieldlist ::= field {&lsquo;<b>,</b>&rsquo; field} [&lsquo;<b>,</b>&rsquo;]
 	field ::= &lsquo;<b>[</b>&rsquo; exp &lsquo;<b>]</b>&rsquo; &lsquo;<b>=</b>&rsquo; exp | Name &lsquo;<b>=</b>&rsquo; exp | exp
-	fieldsep ::= &lsquo;<b>,</b>&rsquo; | &lsquo;<b>;</b>&rsquo;
 </pre>
 
 <p>
@@ -2477,7 +2476,7 @@ fields in the other formats do not affect this counting.
 For example,
 
 <pre>
-     a = { [f(1)] = g; "x", "y"; x = 1, f(x), [30] = 23; 45 }
+     a = { [f(1)] = g, "x", "y", x = 1, f(x), [30] = 23, 45 }
 </pre><p>
 is equivalent to
 
@@ -12026,11 +12025,9 @@ and LiteralString, see <a href="#3.1">&sect;3.1</a>.)
 
 	tableconstructor ::= &lsquo;<b>{</b>&rsquo; [fieldlist] &lsquo;<b>}</b>&rsquo;
 
-	fieldlist ::= field {fieldsep field} [fieldsep]
+	fieldlist ::= field {&lsquo;<b>,</b>&rsquo; field} [&lsquo;<b>,</b>&rsquo;]
 
 	field ::= &lsquo;<b>[</b>&rsquo; exp &lsquo;<b>]</b>&rsquo; &lsquo;<b>=</b>&rsquo; exp | Name &lsquo;<b>=</b>&rsquo; exp | exp
-
-	fieldsep ::= &lsquo;<b>,</b>&rsquo; | &lsquo;<b>;</b>&rsquo;
 
 	binop ::=  &lsquo;<b>+</b>&rsquo; | &lsquo;<b>-</b>&rsquo; | &lsquo;<b>*</b>&rsquo; | &lsquo;<b>/</b>&rsquo; | &lsquo;<b>//</b>&rsquo; | &lsquo;<b>^</b>&rsquo; | &lsquo;<b>%</b>&rsquo; | 
 		 &lsquo;<b>band</b>&rsquo; | &lsquo;<b>bor</b>&rsquo; | &lsquo;<b>bxor</b>&rsquo; | &lsquo;<b>shl</b>&rsquo; | &lsquo;<b>shr</b>&rsquo; | &lsquo;<b>|</b>&rsquo; | 
