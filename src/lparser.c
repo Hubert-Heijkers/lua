@@ -923,8 +923,7 @@ static void field (LexState *ls, ConsControl *cc) {
 
 
 static void constructor (LexState *ls, expdesc *t) {
-  /* constructor -> '{' [ field { sep field } [sep] ] '}'
-     sep -> ',' | ';' */
+  /* constructor -> '{' [ field { ',' field } [','] ] '}' */
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
   int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);
@@ -941,7 +940,7 @@ static void constructor (LexState *ls, expdesc *t) {
     if (ls->t.token == '}') break;
     closelistfield(fs, &cc);
     field(ls, &cc);
-  } while (testnext(ls, ',') || testnext(ls, ';'));
+  } while (testnext(ls, ','));
   check_match(ls, '}', '{', line);
   lastlistfield(fs, &cc);
   luaK_settablesize(fs, pc, t->u.info, cc.na, cc.nh);

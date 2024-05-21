@@ -53,11 +53,9 @@
 
 	tableconstructor ::= "{" [fieldlist] "}"
 
-	fieldlist ::= field {fieldsep field} [fieldsep]
+	fieldlist ::= field {"," field} [","]
 
 	field ::= "[" exp "]" "=" exp | Name "=" exp | exp
-
-	fieldsep ::= "," | ";"
 
 	binop ::=  "+" | "-" | "*" | "/" | "//" | "^" | "%" | 
 		 "|" | 
