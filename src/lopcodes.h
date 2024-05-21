@@ -255,16 +255,16 @@ OP_CONCAT,/*	A B	R[A] := R[A].. ... ..R[A + B - 1]		*/
 OP_CLOSE,/*	A	close all upvalues >= R[A]			*/
 OP_TBC,/*	A	mark variable A "to be closed"			*/
 OP_JMP,/*	sJ	pc += sJ					*/
-OP_EQ,/*	A B k	if ((R[A] == R[B]) ~= k) then pc++		*/
-OP_LT,/*	A B k	if ((R[A] <  R[B]) ~= k) then pc++		*/
-OP_LE,/*	A B k	if ((R[A] <= R[B]) ~= k) then pc++		*/
+OP_EQ,/*	A B k	if ((R[A] == R[B]) <> k) then pc++		*/
+OP_LT,/*	A B k	if ((R[A] <  R[B]) <> k) then pc++		*/
+OP_LE,/*	A B k	if ((R[A] <= R[B]) <> k) then pc++		*/
 
-OP_EQK,/*	A B k	if ((R[A] == K[B]) ~= k) then pc++		*/
-OP_EQI,/*	A sB k	if ((R[A] == sB) ~= k) then pc++		*/
-OP_LTI,/*	A sB k	if ((R[A] < sB) ~= k) then pc++			*/
-OP_LEI,/*	A sB k	if ((R[A] <= sB) ~= k) then pc++		*/
-OP_GTI,/*	A sB k	if ((R[A] > sB) ~= k) then pc++			*/
-OP_GEI,/*	A sB k	if ((R[A] >= sB) ~= k) then pc++		*/
+OP_EQK,/*	A B k	if ((R[A] == K[B]) <> k) then pc++		*/
+OP_EQI,/*	A sB k	if ((R[A] == sB) <> k) then pc++		*/
+OP_LTI,/*	A sB k	if ((R[A] < sB) <> k) then pc++			*/
+OP_LEI,/*	A sB k	if ((R[A] <= sB) <> k) then pc++		*/
+OP_GTI,/*	A sB k	if ((R[A] > sB) <> k) then pc++			*/
+OP_GEI,/*	A sB k	if ((R[A] >= sB) <> k) then pc++		*/
 
 OP_TEST,/*	A k	if (not R[A] == k) then pc++			*/
 OP_TESTSET,/*	A B k	if (not R[B] == k) then pc++ else R[A] := R[B] (*) */
@@ -282,7 +282,7 @@ OP_FORPREP,/*	A Bx	<check values and prepare counters>;
 
 OP_TFORPREP,/*	A Bx	create upvalue for R[A + 3]; pc+=Bx		*/
 OP_TFORCALL,/*	A C	R[A+4], ... ,R[A+3+C] := R[A](R[A+1], R[A+2]);	*/
-OP_TFORLOOP,/*	A Bx	if R[A+2] ~= nil then { R[A]=R[A+2]; pc -= Bx }	*/
+OP_TFORLOOP,/*	A Bx	if R[A+2] <> nil then { R[A]=R[A+2]; pc -= Bx }	*/
 
 OP_SETLIST,/*	A B C k	R[A][C+i] := R[A+i], 1 <= i <= B		*/
 

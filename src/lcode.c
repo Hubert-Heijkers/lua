@@ -1550,7 +1550,7 @@ static void codeorder (FuncState *fs, BinOpr opr, expdesc *e1, expdesc *e2) {
 
 
 /*
-** Emit code for equality comparisons ('==', '~=').
+** Emit code for equality comparisons ('==', '<>').
 ** 'e1' was already put as RK by 'luaK_infix'.
 */
 static void codeeq (FuncState *fs, BinOpr opr, expdesc *e1, expdesc *e2) {
