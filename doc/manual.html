@@ -1260,7 +1260,7 @@ The following strings denote other tokens:
 
 <pre>
      +     -     *     /     %     ^     #
-     //    ==    ~=    &lt;=    &gt;=    &lt;     &gt;
+     //    ==    &lt;&gt;    &lt;=    &gt;=    &lt;     &gt;
      =     (     )     {     }     [     ]
      ::    ;     :     ,     .     |     ...
 </pre>
@@ -2234,7 +2234,7 @@ Lua supports the following relational operators:
 
 <ul>
 <li><b><code>==</code>: </b>equality</li>
-<li><b><code>~=</code>: </b>inequality</li>
+<li><b><code>&lt;&gt;</code>: </b>inequality</li>
 <li><b><code>&lt;</code>: </b>less than</li>
 <li><b><code>&gt;</code>: </b>greater than</li>
 <li><b><code>&lt;=</code>: </b>less or equal</li>
@@ -2280,7 +2280,7 @@ entries in a table.
 
 
 <p>
-The operator <code>~=</code> is exactly the negation of equality (<code>==</code>).
+The operator <code>&lt;&gt;</code> is exactly the negation of equality (<code>==</code>).
 
 
 <p>
@@ -2371,7 +2371,7 @@ A <em>border</em> in a table <code>t</code> is any non-negative integer
 that satisfies the following condition:
 
 <pre>
-     (border == 0 or t[border] ~= nil) and
+     (border == 0 or t[border] &lt;&gt; nil) and
      (t[border + 1] == nil or border == math.maxinteger)
 </pre><p>
 In words,
@@ -2430,7 +2430,7 @@ from lower to higher priority:
 <pre>
      or
      and
-     &lt;     &gt;     &lt;=    &gt;=    ~=    ==
+     &lt;     &gt;     &lt;=    &gt;=    &lt;&gt;    ==
      bor
      bxor
      band
@@ -12034,7 +12034,7 @@ and LiteralString, see <a href="#3.1">&sect;3.1</a>.)
 
 	binop ::=  &lsquo;<b>+</b>&rsquo; | &lsquo;<b>-</b>&rsquo; | &lsquo;<b>*</b>&rsquo; | &lsquo;<b>/</b>&rsquo; | &lsquo;<b>//</b>&rsquo; | &lsquo;<b>^</b>&rsquo; | &lsquo;<b>%</b>&rsquo; | 
 		 &lsquo;<b>band</b>&rsquo; | &lsquo;<b>bor</b>&rsquo; | &lsquo;<b>bxor</b>&rsquo; | &lsquo;<b>shl</b>&rsquo; | &lsquo;<b>shr</b>&rsquo; | &lsquo;<b>|</b>&rsquo; | 
-		 &lsquo;<b>&lt;</b>&rsquo; | &lsquo;<b>&lt;=</b>&rsquo; | &lsquo;<b>&gt;</b>&rsquo; | &lsquo;<b>&gt;=</b>&rsquo; | &lsquo;<b>==</b>&rsquo; | &lsquo;<b>~=</b>&rsquo; | 
+		 &lsquo;<b>&lt;</b>&rsquo; | &lsquo;<b>&lt;=</b>&rsquo; | &lsquo;<b>&gt;</b>&rsquo; | &lsquo;<b>&gt;=</b>&rsquo; | &lsquo;<b>==</b>&rsquo; | &lsquo;<b>&lt;&gt;</b>&rsquo; | 
 		 <b>and</b> | <b>or</b>
 
 	unop ::= &lsquo;<b>-</b>&rsquo; | <b>not</b> | &lsquo;<b>#</b>&rsquo; | &lsquo;<b>bnot</b>&rsquo;
