@@ -11,7 +11,7 @@
 		 do block end | 
 		 while exp do block end | 
 		 repeat block until exp | 
-		 if exp then block {elseif exp then block} [else block] end | 
+		 if exp then block {elseif exp then block} [else block] endif | 
 		 for Name "=" exp "," exp ["," exp] do block end | 
 		 for namelist in explist do block end | 
 		 function funcname funcbody | 

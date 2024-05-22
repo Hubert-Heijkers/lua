@@ -788,7 +788,7 @@ static void close_func (LexState *ls) {
 static int block_follow (LexState *ls, int withuntil) {
   switch (ls->t.token) {
     case TK_ELSE: case TK_ELSEIF:
-    case TK_END: case TK_EOS:
+    case TK_END: case TK_ENDIF: case TK_EOS:
       return 1;
     case TK_UNTIL: return withuntil;
     default: return 0;
@@ -1465,14 +1465,17 @@ static void whilestat (LexState *ls, int line) {
   int whileinit;
   int condexit;
   BlockCnt bl;
+  int tiSyntax = 0;  /* set to 1 if we encounter old TI WHILE syntax */
   luaX_next(ls);  /* skip WHILE */
   whileinit = luaK_getlabel(fs);
   condexit = cond(ls, 1);
   enterblock(fs, &bl, 1);
-  checknext(ls, TK_DO);
+  if (testnext(ls, ';')) tiSyntax = 1;
+  else checknext(ls, TK_DO);
   block(ls);
   luaK_jumpto(fs, whileinit);
   check_match(ls, TK_END, TK_WHILE, line);
+  if (tiSyntax == 1) check_match(ls, ';', TK_END, ls->linenumber);
   leaveblock(fs);
   luaK_patchtohere(fs, condexit);  /* false conditions finish the loop */
 }
@@ -1629,7 +1632,7 @@ static void forstat (LexState *ls, int line) {
 }
 
 
-static void test_then_block (LexState *ls, int *escapelist) {
+static void test_then_block (LexState *ls, int *escapelist, int isIf, int *tiSyntax) {
   /* test_then_block -> [IF | ELSEIF] cond THEN block */
   BlockCnt bl;
   FuncState *fs = ls->fs;
@@ -1637,7 +1640,11 @@ static void test_then_block (LexState *ls, int *escapelist) {
   int jf;  /* instruction to skip 'then' code (if condition is false) */
   luaX_next(ls);  /* skip IF or ELSEIF */
   expr(ls, &v, 1);  /* read condition */
-  checknext(ls, TK_THEN);
+  if (isIf) {
+    if (testnext(ls, ';')) *tiSyntax = 1;
+    else checknext(ls, TK_THEN);
+  }
+  else checknext(ls, (*tiSyntax == 1)?';':TK_THEN);
   if (ls->t.token == TK_BREAK) {  /* 'if x then break' ? */
     int line = ls->linenumber;
     luaK_goiffalse(ls->fs, &v);  /* will jump if condition is true */
@@ -1670,12 +1677,14 @@ static void ifstat (LexState *ls, int line) {
   /* ifstat -> IF cond THEN block {ELSEIF cond THEN block} [ELSE block] END */
   FuncState *fs = ls->fs;
   int escapelist = NO_JUMP;  /* exit list for finished parts */
-  test_then_block(ls, &escapelist);  /* IF cond THEN block */
+  int tiSyntax = 0;  /* set to 1 if we encounter old TI IF syntax */
+  test_then_block(ls, &escapelist, 1, &tiSyntax);  /* IF cond THEN block */
   while (ls->t.token == TK_ELSEIF)
-    test_then_block(ls, &escapelist);  /* ELSEIF cond THEN block */
+    test_then_block(ls, &escapelist, 0, &tiSyntax);  /* ELSEIF cond THEN block */
   if (testnext(ls, TK_ELSE))
     block(ls);  /* 'else' part */
-  check_match(ls, TK_END, TK_IF, line);
+  check_match(ls, TK_ENDIF, TK_IF, line);
+  if (tiSyntax == 1) check_match(ls, ';', TK_ENDIF, ls->linenumber);
   luaK_patchtohere(fs, escapelist);  /* patch escape list to 'if' end */
 }
 
