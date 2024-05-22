@@ -62,7 +62,7 @@ typedef struct BlockCnt {
 ** prototypes for recursive non-terminal functions
 */
 static void statement (LexState *ls);
-static void expr (LexState *ls, expdesc *v);
+static void expr (LexState *ls, expdesc *v, int tiLogicalExpr);
 
 
 static l_noret error_expected (LexState *ls, int token) {
@@ -822,7 +822,7 @@ static void fieldsel (LexState *ls, expdesc *v) {
 static void yindex (LexState *ls, expdesc *v) {
   /* index -> '[' expr ']' */
   luaX_next(ls);  /* skip the '[' */
-  expr(ls, v);
+  expr(ls, v, 0);
   luaK_exp2val(ls->fs, v);
   checknext(ls, ']');
 }
@@ -859,7 +859,7 @@ static void recfield (LexState *ls, ConsControl *cc) {
   checknext(ls, '=');
   tab = *cc->t;
   luaK_indexed(fs, &tab, &key);
-  expr(ls, &val);
+  expr(ls, &val, 0);
   luaK_storevar(fs, &tab, &val);
   fs->freereg = reg;  /* free registers */
 }
@@ -895,7 +895,7 @@ static void lastlistfield (FuncState *fs, ConsControl *cc) {
 
 static void listfield (LexState *ls, ConsControl *cc) {
   /* listfield -> exp */
-  expr(ls, &cc->v);
+  expr(ls, &cc->v, 0);
   cc->tostore++;
 }
 
@@ -1011,10 +1011,10 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
 static int explist (LexState *ls, expdesc *v) {
   /* explist -> expr { ',' expr } */
   int n = 1;  /* at least one expression */
-  expr(ls, v);
+  expr(ls, v, 0);
   while (testnext(ls, ',')) {
     luaK_exp2nextreg(ls->fs, v);
-    expr(ls, v);
+    expr(ls, v, 0);
     n++;
   }
   return n;
@@ -1076,13 +1076,13 @@ static void funcargs (LexState *ls, expdesc *f, int line) {
 */
 
 
-static void primaryexp (LexState *ls, expdesc *v) {
+static void primaryexp (LexState *ls, expdesc *v, int tiLogicalExpr) {
   /* primaryexp -> NAME | '(' expr ')' */
   switch (ls->t.token) {
     case '(': {
       int line = ls->linenumber;
       luaX_next(ls);
-      expr(ls, v);
+      expr(ls, v, tiLogicalExpr);
       check_match(ls, ')', '(', line);
       luaK_dischargevars(ls->fs, v);
       return;
@@ -1098,12 +1098,12 @@ static void primaryexp (LexState *ls, expdesc *v) {
 }
 
 
-static void suffixedexp (LexState *ls, expdesc *v) {
+static void suffixedexp (LexState *ls, expdesc *v, int tiLogicalExpr) {
   /* suffixedexp ->
        primaryexp { '.' NAME | '[' exp ']' | ':' NAME funcargs | funcargs } */
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  primaryexp(ls, v);
+  primaryexp(ls, v, tiLogicalExpr);
   for (;;) {
     switch (ls->t.token) {
       case '.': {  /* fieldsel */
@@ -1136,7 +1136,7 @@ static void suffixedexp (LexState *ls, expdesc *v) {
 }
 
 
-static void simpleexp (LexState *ls, expdesc *v) {
+static void simpleexp (LexState *ls, expdesc *v, int tiLogicalExpr) {
   /* simpleexp -> FLT | INT | STRING | NIL | TRUE | FALSE | ... |
                   constructor | FUNCTION body | suffixedexp */
   switch (ls->t.token) {
@@ -1183,7 +1183,7 @@ static void simpleexp (LexState *ls, expdesc *v) {
       return;
     }
     default: {
-      suffixedexp(ls, v);
+      suffixedexp(ls, v, tiLogicalExpr);
       return;
     }
   }
@@ -1201,7 +1201,7 @@ static UnOpr getunopr (int op) {
 }
 
 
-static BinOpr getbinopr (int op) {
+static BinOpr getbinopr (int op, int tiLogicalExpr) {
   switch (op) {
     case '+': return OPR_ADD;
     case '-': return OPR_SUB;
@@ -1212,6 +1212,7 @@ static BinOpr getbinopr (int op) {
     case TK_IDIV: return OPR_IDIV;
     case '|': return OPR_CONCAT;
     case TK_NE: return OPR_NE;
+    case '=': return (tiLogicalExpr == 1)?OPR_EQ:OPR_NOBINOPR;  
     case TK_EQ: return OPR_EQ;
     case '<': return OPR_LT;
     case TK_LE: return OPR_LE;
@@ -1250,7 +1251,7 @@ static const struct {
 ** subexpr -> (simpleexp | unop subexpr) { binop subexpr }
 ** where 'binop' is any binary operator with a priority higher than 'limit'
 */
-static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
+static BinOpr subexpr (LexState *ls, expdesc *v, int limit, int tiLogicalExpr) {
   BinOpr op;
   UnOpr uop;
   enterlevel(ls);
@@ -1258,12 +1259,12 @@ static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
   if (uop != OPR_NOUNOPR) {  /* prefix (unary) operator? */
     int line = ls->linenumber;
     luaX_next(ls);  /* skip operator */
-    subexpr(ls, v, UNARY_PRIORITY);
+    subexpr(ls, v, UNARY_PRIORITY, tiLogicalExpr);
     luaK_prefix(ls->fs, uop, v, line);
   }
-  else simpleexp(ls, v);
+  else simpleexp(ls, v, tiLogicalExpr);
   /* expand while operators have priorities higher than 'limit' */
-  op = getbinopr(ls->t.token);
+  op = getbinopr(ls->t.token, tiLogicalExpr);
   while (op != OPR_NOBINOPR && priority[op].left > limit) {
     expdesc v2;
     BinOpr nextop;
@@ -1271,7 +1272,7 @@ static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
     luaX_next(ls);  /* skip operator */
     luaK_infix(ls->fs, op, v);
     /* read sub-expression with higher priority */
-    nextop = subexpr(ls, &v2, priority[op].right);
+    nextop = subexpr(ls, &v2, priority[op].right, tiLogicalExpr);
     luaK_posfix(ls->fs, op, v, &v2, line);
     op = nextop;
   }
@@ -1280,8 +1281,8 @@ static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
 }
 
 
-static void expr (LexState *ls, expdesc *v) {
-  subexpr(ls, v, 0);
+static void expr (LexState *ls, expdesc *v, int tiLogicalExpr) {
+  subexpr(ls, v, 0, tiLogicalExpr);
 }
 
 /* }==================================================================== */
@@ -1372,7 +1373,7 @@ static void restassign (LexState *ls, struct LHS_assign *lh, int nvars) {
   if (testnext(ls, ',')) {  /* restassign -> ',' suffixedexp restassign */
     struct LHS_assign nv;
     nv.prev = lh;
-    suffixedexp(ls, &nv.v);
+    suffixedexp(ls, &nv.v, 0);
     if (!vkisindexed(nv.v.k))
       check_conflict(ls, lh, &nv.v);
     enterlevel(ls);  /* control recursion depth */
@@ -1396,10 +1397,10 @@ static void restassign (LexState *ls, struct LHS_assign *lh, int nvars) {
 }
 
 
-static int cond (LexState *ls) {
+static int cond (LexState *ls, int tiLogicalExpr) {
   /* cond -> exp */
   expdesc v;
-  expr(ls, &v);  /* read condition */
+  expr(ls, &v, tiLogicalExpr);  /* read condition */
   if (v.k == VNIL) v.k = VFALSE;  /* 'falses' are all equal here */
   luaK_goiftrue(ls->fs, &v);
   return v.f;
@@ -1466,7 +1467,7 @@ static void whilestat (LexState *ls, int line) {
   BlockCnt bl;
   luaX_next(ls);  /* skip WHILE */
   whileinit = luaK_getlabel(fs);
-  condexit = cond(ls);
+  condexit = cond(ls, 1);
   enterblock(fs, &bl, 1);
   checknext(ls, TK_DO);
   block(ls);
@@ -1488,7 +1489,7 @@ static void repeatstat (LexState *ls, int line) {
   luaX_next(ls);  /* skip REPEAT */
   statlist(ls);
   check_match(ls, TK_UNTIL, TK_REPEAT, line);
-  condexit = cond(ls);  /* read condition (inside scope block) */
+  condexit = cond(ls, 0);  /* read condition (inside scope block) */
   leaveblock(fs);  /* finish scope */
   if (bl2.upval) {  /* upvalues? */
     int exit = luaK_jump(fs);  /* normal exit must jump over fix */
@@ -1509,7 +1510,7 @@ static void repeatstat (LexState *ls, int line) {
 */
 static void exp1 (LexState *ls) {
   expdesc e;
-  expr(ls, &e);
+  expr(ls, &e, 0);
   luaK_exp2nextreg(ls->fs, &e);
   lua_assert(e.k == VNONRELOC);
 }
@@ -1635,7 +1636,7 @@ static void test_then_block (LexState *ls, int *escapelist) {
   expdesc v;
   int jf;  /* instruction to skip 'then' code (if condition is false) */
   luaX_next(ls);  /* skip IF or ELSEIF */
-  expr(ls, &v);  /* read condition */
+  expr(ls, &v, 1);  /* read condition */
   checknext(ls, TK_THEN);
   if (ls->t.token == TK_BREAK) {  /* 'if x then break' ? */
     int line = ls->linenumber;
@@ -1789,7 +1790,7 @@ static void exprstat (LexState *ls) {
   /* stat -> func | assignment */
   FuncState *fs = ls->fs;
   struct LHS_assign v;
-  suffixedexp(ls, &v.v);
+  suffixedexp(ls, &v.v, 0);
   if (ls->t.token == '=' || ls->t.token == ',') { /* stat -> assignment ? */
     v.prev = NULL;
     restassign(ls, &v, 1);
