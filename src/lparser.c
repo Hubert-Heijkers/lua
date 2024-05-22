@@ -57,12 +57,21 @@ typedef struct BlockCnt {
 } BlockCnt;
 
 
+/*
+** enum for syntax being used in if and while expressions
+*/
+typedef enum ExprSyntax {
+  SYNTAX_Unknown = 0,
+  SYNTAX_TI = 1,
+  SYNTAX_Lua = 2  
+} ExprSyntax;
+
 
 /*
 ** prototypes for recursive non-terminal functions
 */
 static void statement (LexState *ls);
-static void expr (LexState *ls, expdesc *v);
+static void expr (LexState *ls, expdesc *v, ExprSyntax *withSyntax);
 
 
 static l_noret error_expected (LexState *ls, int token) {
@@ -788,7 +797,7 @@ static void close_func (LexState *ls) {
 static int block_follow (LexState *ls, int withuntil) {
   switch (ls->t.token) {
     case TK_ELSE: case TK_ELSEIF:
-    case TK_END: case TK_EOS:
+    case TK_END: case TK_ENDIF: case TK_EOS:
       return 1;
     case TK_UNTIL: return withuntil;
     default: return 0;
@@ -822,7 +831,7 @@ static void fieldsel (LexState *ls, expdesc *v) {
 static void yindex (LexState *ls, expdesc *v) {
   /* index -> '[' expr ']' */
   luaX_next(ls);  /* skip the '[' */
-  expr(ls, v);
+  expr(ls, v, NULL);
   luaK_exp2val(ls->fs, v);
   checknext(ls, ']');
 }
@@ -858,7 +867,7 @@ static void recfield (LexState *ls, ConsControl *cc) {
   checknext(ls, '=');
   tab = *cc->t;
   luaK_indexed(fs, &tab, &key);
-  expr(ls, &val);
+  expr(ls, &val, NULL);
   luaK_storevar(fs, &tab, &val);
   fs->freereg = reg;  /* free registers */
 }
@@ -894,7 +903,7 @@ static void lastlistfield (FuncState *fs, ConsControl *cc) {
 
 static void listfield (LexState *ls, ConsControl *cc) {
   /* listfield -> exp */
-  expr(ls, &cc->v);
+  expr(ls, &cc->v, NULL);
   cc->tostore++;
 }
 
@@ -1010,10 +1019,10 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
 static int explist (LexState *ls, expdesc *v) {
   /* explist -> expr { ',' expr } */
   int n = 1;  /* at least one expression */
-  expr(ls, v);
+  expr(ls, v, NULL);
   while (testnext(ls, ',')) {
     luaK_exp2nextreg(ls->fs, v);
-    expr(ls, v);
+    expr(ls, v, NULL);
     n++;
   }
   return n;
@@ -1076,13 +1085,13 @@ static void funcargs (LexState *ls, expdesc *f) {
 */
 
 
-static void primaryexp (LexState *ls, expdesc *v) {
+static void primaryexp (LexState *ls, expdesc *v, ExprSyntax *withSyntax) {
   /* primaryexp -> NAME | '(' expr ')' */
   switch (ls->t.token) {
     case '(': {
       int line = ls->linenumber;
       luaX_next(ls);
-      expr(ls, v);
+      expr(ls, v, withSyntax);
       check_match(ls, ')', '(', line);
       luaK_dischargevars(ls->fs, v);
       return;
@@ -1098,11 +1107,11 @@ static void primaryexp (LexState *ls, expdesc *v) {
 }
 
 
-static void suffixedexp (LexState *ls, expdesc *v) {
+static void suffixedexp (LexState *ls, expdesc *v, ExprSyntax *withSyntax) {
   /* suffixedexp ->
        primaryexp { '.' NAME | '[' exp ']' | ':' NAME funcargs | funcargs } */
   FuncState *fs = ls->fs;
-  primaryexp(ls, v);
+  primaryexp(ls, v, withSyntax);
   for (;;) {
     switch (ls->t.token) {
       case '.': {  /* fieldsel */
@@ -1135,7 +1144,7 @@ static void suffixedexp (LexState *ls, expdesc *v) {
 }
 
 
-static void simpleexp (LexState *ls, expdesc *v) {
+static void simpleexp (LexState *ls, expdesc *v, ExprSyntax *withSyntax) {
   /* simpleexp -> FLT | INT | STRING | NIL | TRUE | FALSE | ... |
                   constructor | FUNCTION body | suffixedexp */
   switch (ls->t.token) {
@@ -1182,7 +1191,7 @@ static void simpleexp (LexState *ls, expdesc *v) {
       return;
     }
     default: {
-      suffixedexp(ls, v);
+      suffixedexp(ls, v, withSyntax);
       return;
     }
   }
@@ -1190,9 +1199,26 @@ static void simpleexp (LexState *ls, expdesc *v) {
 }
 
 
-static UnOpr getunopr (int op) {
+static UnOpr getunopr (int op, ExprSyntax *withSyntax) {
   switch (op) {
-    case TK_NOT: return OPR_NOT;
+    case '~':
+      if (withSyntax) {
+        if (*withSyntax == SYNTAX_Unknown) { 
+          *withSyntax = SYNTAX_TI;
+          return OPR_NOT;
+        }
+        else if (*withSyntax == SYNTAX_TI)
+          return OPR_NOT;
+      }
+      return OPR_NOUNOPR;
+    case TK_NOT:
+      if (withSyntax) {
+        if (*withSyntax == SYNTAX_Unknown)
+          *withSyntax = SYNTAX_Lua;
+        else if (*withSyntax == SYNTAX_TI)
+          return OPR_NOUNOPR;
+      }
+      return OPR_NOT;
     case '-': return OPR_MINUS;
     case TK_BNOT: return OPR_BNOT;
     case '#': return OPR_LEN;
@@ -1201,7 +1227,7 @@ static UnOpr getunopr (int op) {
 }
 
 
-static BinOpr getbinopr (int op) {
+static BinOpr getbinopr (int op, ExprSyntax *withSyntax) {
   switch (op) {
     case '+': return OPR_ADD;
     case '-': return OPR_SUB;
@@ -1217,7 +1243,24 @@ static BinOpr getbinopr (int op) {
     case TK_SHR: return OPR_SHR;
     case '|': return OPR_CONCAT;
     case TK_NE: return OPR_NE;
-    case TK_EQ: return OPR_EQ;
+    case '=': 
+      if (withSyntax) {
+        if (*withSyntax == SYNTAX_Unknown) { 
+          *withSyntax = SYNTAX_TI;
+          return OPR_EQ;
+        }
+        else if (*withSyntax == SYNTAX_TI)
+          return OPR_EQ;
+      }
+      return OPR_NOBINOPR;
+    case TK_EQ:
+      if (withSyntax) {
+        if (*withSyntax == SYNTAX_Unknown)
+          *withSyntax = SYNTAX_Lua;
+        else if (*withSyntax == SYNTAX_TI)
+          return OPR_NOBINOPR;
+      }
+      return OPR_EQ;
     case '<': return OPR_LT;
     case TK_LE: return OPR_LE;
     case '>': return OPR_GT;
@@ -1255,20 +1298,20 @@ static const struct {
 ** subexpr -> (simpleexp | unop subexpr) { binop subexpr }
 ** where 'binop' is any binary operator with a priority higher than 'limit'
 */
-static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
+static BinOpr subexpr (LexState *ls, expdesc *v, int limit, ExprSyntax *withSyntax) {
   BinOpr op;
   UnOpr uop;
   enterlevel(ls);
-  uop = getunopr(ls->t.token);
+  uop = getunopr(ls->t.token, withSyntax);
   if (uop != OPR_NOUNOPR) {  /* prefix (unary) operator? */
     int line = ls->linenumber;
     luaX_next(ls);  /* skip operator */
-    subexpr(ls, v, UNARY_PRIORITY);
+    subexpr(ls, v, UNARY_PRIORITY, withSyntax);
     luaK_prefix(ls->fs, uop, v, line);
   }
-  else simpleexp(ls, v);
+  else simpleexp(ls, v, withSyntax);
   /* expand while operators have priorities higher than 'limit' */
-  op = getbinopr(ls->t.token);
+  op = getbinopr(ls->t.token, withSyntax);
   while (op != OPR_NOBINOPR && priority[op].left > limit) {
     expdesc v2;
     BinOpr nextop;
@@ -1276,7 +1319,7 @@ static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
     luaX_next(ls);  /* skip operator */
     luaK_infix(ls->fs, op, v);
     /* read sub-expression with higher priority */
-    nextop = subexpr(ls, &v2, priority[op].right);
+    nextop = subexpr(ls, &v2, priority[op].right, withSyntax);
     luaK_posfix(ls->fs, op, v, &v2, line);
     op = nextop;
   }
@@ -1285,8 +1328,8 @@ static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
 }
 
 
-static void expr (LexState *ls, expdesc *v) {
-  subexpr(ls, v, 0);
+static void expr (LexState *ls, expdesc *v, ExprSyntax *withSyntax) {
+  subexpr(ls, v, 0, withSyntax);
 }
 
 /* }==================================================================== */
@@ -1377,7 +1420,7 @@ static void restassign (LexState *ls, struct LHS_assign *lh, int nvars) {
   if (testnext(ls, ',')) {  /* restassign -> ',' suffixedexp restassign */
     struct LHS_assign nv;
     nv.prev = lh;
-    suffixedexp(ls, &nv.v);
+    suffixedexp(ls, &nv.v, NULL);
     if (!vkisindexed(nv.v.k))
       check_conflict(ls, lh, &nv.v);
     enterlevel(ls);  /* control recursion depth */
@@ -1401,10 +1444,10 @@ static void restassign (LexState *ls, struct LHS_assign *lh, int nvars) {
 }
 
 
-static int cond (LexState *ls) {
+static int cond (LexState *ls, ExprSyntax *withSyntax) {
   /* cond -> exp */
   expdesc v;
-  expr(ls, &v);  /* read condition */
+  expr(ls, &v, withSyntax);  /* read condition */
   if (v.k == VNIL) v.k = VFALSE;  /* 'falses' are all equal here */
   luaK_goiftrue(ls->fs, &v);
   return v.f;
@@ -1471,12 +1514,27 @@ static void whilestat (LexState *ls, int line) {
   BlockCnt bl;
   luaX_next(ls);  /* skip WHILE */
   whileinit = luaK_getlabel(fs);
-  condexit = cond(ls);
+  ExprSyntax withSyntax = (ls->t.token == '(')?SYNTAX_Unknown:SYNTAX_Lua;  /* indicator for the syntax we migth be using */
+  condexit = cond(ls, &withSyntax);
   enterblock(fs, &bl, 1);
-  checknext(ls, TK_DO);
+  if (withSyntax == SYNTAX_Unknown) {
+    if (testnext(ls, ';'))
+      withSyntax = SYNTAX_TI;  
+    else {
+      checknext(ls, TK_DO);
+      withSyntax = SYNTAX_Lua;
+    }
+  }
+  else if (withSyntax == SYNTAX_TI)
+    checknext(ls, ';');
+  else
+    checknext(ls, TK_DO);
   block(ls);
   luaK_jumpto(fs, whileinit);
+  int lineEnd = ls->linenumber;  /* may be needed for error messages */
   check_match(ls, TK_END, TK_WHILE, line);
+  if (withSyntax == SYNTAX_TI)
+    check_match(ls, ';', TK_END, lineEnd);
   leaveblock(fs);
   luaK_patchtohere(fs, condexit);  /* false conditions finish the loop */
 }
@@ -1493,7 +1551,7 @@ static void repeatstat (LexState *ls, int line) {
   luaX_next(ls);  /* skip REPEAT */
   statlist(ls);
   check_match(ls, TK_UNTIL, TK_REPEAT, line);
-  condexit = cond(ls);  /* read condition (inside scope block) */
+  condexit = cond(ls, NULL);  /* read condition (inside scope block) */
   leaveblock(fs);  /* finish scope */
   if (bl2.upval) {  /* upvalues? */
     int exit = luaK_jump(fs);  /* normal exit must jump over fix */
@@ -1514,7 +1572,7 @@ static void repeatstat (LexState *ls, int line) {
 */
 static void exp1 (LexState *ls) {
   expdesc e;
-  expr(ls, &e);
+  expr(ls, &e, NULL);
   luaK_exp2nextreg(ls->fs, &e);
   lua_assert(e.k == VNONRELOC);
 }
@@ -1633,15 +1691,29 @@ static void forstat (LexState *ls, int line) {
 }
 
 
-static void test_then_block (LexState *ls, int *escapelist) {
+static void test_then_block (LexState *ls, int *escapelist, ExprSyntax *withSyntax, int token, int line) {
   /* test_then_block -> [IF | ELSEIF] cond THEN block */
+  lua_assert(withSyntax != NULL);
   BlockCnt bl;
   FuncState *fs = ls->fs;
   expdesc v;
   int jf;  /* instruction to skip 'then' code (if condition is false) */
-  luaX_next(ls);  /* skip IF or ELSEIF */
-  expr(ls, &v);  /* read condition */
-  checknext(ls, TK_THEN);
+  expr(ls, &v, withSyntax);  /* read condition */
+  lua_assert((token == TK_IF) || (*withSyntax != SYNTAX_Unknown));
+  if ((token == TK_IF) && (*withSyntax == SYNTAX_Unknown)) {
+    if (testnext(ls, ';'))
+      *withSyntax = SYNTAX_TI;  
+    else {
+      checknext(ls, TK_THEN);
+      *withSyntax = SYNTAX_Lua;
+    }
+  }
+  else {
+    if (*withSyntax == SYNTAX_TI)
+      check_match(ls, ';', token, line);
+    else
+      checknext(ls, TK_THEN);
+  }
   if (ls->t.token == TK_BREAK) {  /* 'if x then break' ? */
     int line = ls->linenumber;
     luaK_goiffalse(ls->fs, &v);  /* will jump if condition is true */
@@ -1674,12 +1746,30 @@ static void ifstat (LexState *ls, int line) {
   /* ifstat -> IF cond THEN block {ELSEIF cond THEN block} [ELSE block] END */
   FuncState *fs = ls->fs;
   int escapelist = NO_JUMP;  /* exit list for finished parts */
-  test_then_block(ls, &escapelist);  /* IF cond THEN block */
-  while (ls->t.token == TK_ELSEIF)
-    test_then_block(ls, &escapelist);  /* ELSEIF cond THEN block */
-  if (testnext(ls, TK_ELSE))
+  luaX_next(ls);  /* skip IF */
+  ExprSyntax withSyntax = (ls->t.token == '(')?SYNTAX_Unknown:SYNTAX_Lua;  /* indicator for the syntax we migth be using */
+  test_then_block(ls, &escapelist, &withSyntax, TK_IF, line);  /* IF cond THEN block */
+  while (ls->t.token == TK_ELSEIF) {
+    int lineElseif = ls->linenumber;  /* may be needed for error messages */
+    luaX_next(ls);  /* skip ELSEIF */
+    if ((withSyntax == SYNTAX_Unknown) && (ls->t.token != '('))
+      checknext(ls,'(');
+    test_then_block(ls, &escapelist, &withSyntax, TK_ELSEIF, lineElseif);  /* ELSEIF cond THEN block */
+  }
+  int lineElse = ls->linenumber;  /* may be needed for error messages */
+  if (testnext(ls, TK_ELSE)) {
+    if (withSyntax == SYNTAX_TI)
+      check_match(ls, ';', TK_ELSE, lineElse);
     block(ls);  /* 'else' part */
-  check_match(ls, TK_END, TK_IF, line);
+  }
+  /* TI syntax uses ENDIF, Lua uses END to terminate an IF statemen */
+  if (withSyntax == SYNTAX_TI) {
+    int lineEndif = ls->linenumber;  /* may be needed for error messages */
+    check_match(ls, TK_ENDIF, TK_IF, line);
+    check_match(ls, ';', TK_ENDIF, lineEndif);
+  }
+  else
+    check_match(ls, TK_END, TK_IF, line);
   luaK_patchtohere(fs, escapelist);  /* patch escape list to 'if' end */
 }
 
@@ -1794,7 +1884,7 @@ static void exprstat (LexState *ls) {
   /* stat -> func | assignment */
   FuncState *fs = ls->fs;
   struct LHS_assign v;
-  suffixedexp(ls, &v.v);
+  suffixedexp(ls, &v.v, NULL);
   if (ls->t.token == '=' || ls->t.token == ',') { /* stat -> assignment ? */
     v.prev = NULL;
     restassign(ls, &v, 1);
