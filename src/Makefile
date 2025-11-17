@@ -28,20 +28,28 @@ MYOBJS=
 # Special flags for compiler modules; -Os reduces code size.
 CMCFLAGS= 
 
+# Put all build artifacts here (override with BUILD_DIR=... if you like)
+BUILD_DIR ?= ../build
+
 # == END OF USER SETTINGS -- NO NEED TO CHANGE ANYTHING BELOW THIS LINE =======
 
 PLATS= guess aix bsd c89 freebsd generic ios linux linux-readline macosx mingw posix solaris
 
-LUA_A=	liblua.a
+# Ensure build dir exists
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
+
+# Build-dir scoped objects/targets
+LUA_A=	$(BUILD_DIR)/liblua.a
 CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o
 LIB_O=	lauxlib.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o
-BASE_O= $(CORE_O) $(LIB_O) $(MYOBJS)
+BASE_O= $(patsubst %.o,$(BUILD_DIR)/%.o,$(CORE_O)) $(patsubst %.o,$(BUILD_DIR)/%.o,$(LIB_O)) $(patsubst %.o,$(BUILD_DIR)/%.o,$(MYOBJS))
 
-LUA_T=	lua
-LUA_O=	lua.o
+LUA_T=	$(BUILD_DIR)/lua
+LUA_O=	$(BUILD_DIR)/lua.o
 
-LUAC_T=	luac
-LUAC_O=	luac.o
+LUAC_T=	$(BUILD_DIR)/luac
+LUAC_O=	$(BUILD_DIR)/luac.o
 
 ALL_O= $(BASE_O) $(LUA_O) $(LUAC_O)
 ALL_T= $(LUA_A) $(LUA_T) $(LUAC_T)
@@ -56,14 +64,14 @@ o:	$(ALL_O)
 
 a:	$(ALL_A)
 
-$(LUA_A): $(BASE_O)
+$(LUA_A): $(BASE_O) | $(BUILD_DIR)
 	$(AR) $@ $(BASE_O)
 	$(RANLIB) $@
 
-$(LUA_T): $(LUA_O) $(LUA_A)
+$(LUA_T): $(LUA_O) $(LUA_A) | $(BUILD_DIR)
 	$(CC) -o $@ $(LDFLAGS) $(LUA_O) $(LUA_A) $(LIBS)
 
-$(LUAC_T): $(LUAC_O) $(LUA_A)
+$(LUAC_T): $(LUAC_O) $(LUA_A) | $(BUILD_DIR)
 	$(CC) -o $@ $(LDFLAGS) $(LUAC_O) $(LUA_A) $(LIBS)
 
 test:
@@ -71,6 +79,7 @@ test:
 
 clean:
 	$(RM) $(ALL_T) $(ALL_O)
+	$(RM) -r $(BUILD_DIR)
 
 depend:
 	@$(CC) $(CFLAGS) -MM l*.c
@@ -85,6 +94,7 @@ echo:
 	@echo "RANLIB= $(RANLIB)"
 	@echo "RM= $(RM)"
 	@echo "UNAME= $(UNAME)"
+	@echo "BUILD_DIR= $(BUILD_DIR)"
 
 # Convenience targets for popular platforms.
 ALL= all
@@ -132,10 +142,10 @@ Darwin macos macosx:
 	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_MACOSX -DLUA_USE_READLINE" SYSLIBS="-lreadline"
 
 mingw:
-	$(MAKE) "LUA_A=lua54.dll" "LUA_T=lua.exe" \
+	$(MAKE) "LUA_A=$(BUILD_DIR)/lua54.dll" "LUA_T=$(BUILD_DIR)/lua.exe" \
 	"AR=$(CC) -shared -o" "RANLIB=strip --strip-unneeded" \
-	"SYSCFLAGS=-DLUA_BUILD_AS_DLL" "SYSLIBS=" "SYSLDFLAGS=-s" lua.exe
-	$(MAKE) "LUAC_T=luac.exe" luac.exe
+	"SYSCFLAGS=-DLUA_BUILD_AS_DLL" "SYSLIBS=" "SYSLDFLAGS=-s" $(BUILD_DIR)/lua.exe
+	$(MAKE) "LUAC_T=$(BUILD_DIR)/luac.exe" $(BUILD_DIR)/luac.exe
 
 posix:
 	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_POSIX"
@@ -147,14 +157,18 @@ SunOS solaris:
 .PHONY: all $(PLATS) help test clean default o a depend echo
 
 # Compiler modules may use special flags.
-llex.o:
-	$(CC) $(CFLAGS) $(CMCFLAGS) -c llex.c
+$(BUILD_DIR)/llex.o: llex.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(CMCFLAGS) -c llex.c -o $@
 
-lparser.o:
-	$(CC) $(CFLAGS) $(CMCFLAGS) -c lparser.c
+$(BUILD_DIR)/lparser.o: lparser.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(CMCFLAGS) -c lparser.c -o $@
 
-lcode.o:
-	$(CC) $(CFLAGS) $(CMCFLAGS) -c lcode.c
+$(BUILD_DIR)/lcode.o: lcode.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(CMCFLAGS) -c lcode.c -o $@
+
+# Generic rule for the rest
+$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # DO NOT DELETE
 

@@ -6,6 +6,9 @@
 # Your platform. See PLATS for possible values.
 PLAT= guess
 
+# Where src builds artifacts (must match src/Makefile, override with BUILD_DIR=...)
+BUILD_DIR ?= ../build
+
 # Where to install. The installation starts in the src and doc directories,
 # so take care if INSTALL_TOP is not an absolute path. See the local target.
 # You may want to make INSTALL_LMOD and INSTALL_CMOD consistent with
@@ -39,9 +42,9 @@ RM= rm -f
 PLATS= guess aix bsd c89 freebsd generic ios linux linux-readline macosx mingw posix solaris
 
 # What to install.
-TO_BIN= lua luac
+TO_BIN= $(BUILD_DIR)/lua $(BUILD_DIR)/luac
 TO_INC= lua.h luaconf.h lualib.h lauxlib.h lua.hpp
-TO_LIB= liblua.a
+TO_LIB= $(BUILD_DIR)/liblua.a
 TO_MAN= lua.1 luac.1
 
 # Lua version and release.
@@ -51,8 +54,9 @@ R= $V.8
 # Targets start here.
 all:	$(PLAT)
 
+# Delegate builds/tests/cleans into src, passing BUILD_DIR through.
 $(PLATS) help test clean:
-	@cd src && $(MAKE) $@
+	@$(MAKE) -C src BUILD_DIR=$(BUILD_DIR) $@
 
 install: dummy
 	cd src && $(MKDIR) $(INSTALL_BIN) $(INSTALL_INC) $(INSTALL_LIB) $(INSTALL_MAN) $(INSTALL_LMOD) $(INSTALL_CMOD)
@@ -68,14 +72,14 @@ uninstall:
 	cd doc && cd $(INSTALL_MAN) && $(RM) $(TO_MAN)
 
 local:
-	$(MAKE) install INSTALL_TOP=../install
+	$(MAKE) install INSTALL_TOP=../install BUILD_DIR=$(BUILD_DIR)
 
 # make may get confused with install/ if it does not support .PHONY.
 dummy:
 
 # Echo config parameters.
 echo:
-	@cd src && $(MAKE) -s echo
+	@$(MAKE) -C src BUILD_DIR=$(BUILD_DIR) -s echo
 	@echo "PLAT= $(PLAT)"
 	@echo "V= $V"
 	@echo "R= $R"
@@ -92,6 +96,7 @@ echo:
 	@echo "INSTALL_CMOD= $(INSTALL_CMOD)"
 	@echo "INSTALL_EXEC= $(INSTALL_EXEC)"
 	@echo "INSTALL_DATA= $(INSTALL_DATA)"
+	@echo "BUILD_DIR= $(BUILD_DIR)"
 
 # Echo pkg-config data.
 pc:
