@@ -293,7 +293,7 @@ assert(a == print and c == 1)
 
 -- testing __concat
 
-a = setmetatable({x="u"}, {__concat = function (a,b) return a.x..'.'..b.x end})
+a = setmetatable({x="u"}, {__concat = function (a,b) return a.x|'.'|b.x end})
 x,y = T.testC([[
   pushnum 5
   pushvalue 2;
@@ -302,7 +302,7 @@ x,y = T.testC([[
   pushvalue -2;
   return 2;
 ]], a, a)
-assert(x == a..a and y == 5)
+assert(x == a|a and y == 5)
 
 -- concat with 0 elements
 assert(T.testC("concat 0; return 1") == "")
@@ -463,17 +463,17 @@ if not _soft then
 end
 
 local lim = _soft and 500 or 12000
-local prog = {"checkstack " .. (lim * 2 + 100) .. "msg", "newtable"}
+local prog = {"checkstack " | (lim * 2 + 100) | "msg", "newtable"}
 for i = 1,lim do
-  prog[#prog + 1] = "pushnum " .. i
-  prog[#prog + 1] = "pushnum " .. i * 10
+  prog[#prog + 1] = "pushnum " | i
+  prog[#prog + 1] = "pushnum " | i * 10
 end
 
 prog[#prog + 1] = "rawgeti R 2"   -- get global table in registry
-prog[#prog + 1] = "insert " .. -(2*lim + 2)
+prog[#prog + 1] = "insert " | -(2*lim + 2)
 
 for i = 1,lim do
-  prog[#prog + 1] = "settable " .. -(2*(lim - i + 1) + 1)
+  prog[#prog + 1] = "settable " | -(2*(lim - i + 1) + 1)
 end
 
 prog[#prog + 1] = "return 2"
@@ -673,8 +673,8 @@ assert(T.upvalue(f, 2) == "xuxu")
 
 -- large closures
 do
-  local A = "checkstack 300 msg;" ..
-            string.rep("pushnum 10;", 255) ..
+  local A = "checkstack 300 msg;" |
+            string.rep("pushnum 10;", 255) |
             "pushcclosure 255; return 1"
   A = T.testC(A)
   for i=1,255 do
@@ -1283,7 +1283,7 @@ testamem("empty-table creation", function ()
 end)
 
 testamem("string creation", function ()
-  return "XXX" .. "YYY"
+  return "XXX" | "YYY"
 end)
 
 testamem("coroutine creation", function()
@@ -1340,7 +1340,7 @@ local testprog = [[
 local function foo () return end
 local t = {"x"}
 AA = "aaa"
-for i = 1, #t do AA = AA .. t[i] end
+for i = 1, #t do AA = AA | t[i] end
 return true
 ]]
 
@@ -1361,7 +1361,7 @@ assert(_G.AA == "aaax")
 -- other generic tests
 
 testamem("gsub", function ()
-  local a, b = string.gsub("alo alo", "(a)", function (x) return x..'b' end)
+  local a, b = string.gsub("alo alo", "(a)", function (x) return x|'b' end)
   return (a == 'ablo ablo')
 end)
 
@@ -1385,8 +1385,8 @@ assert(os.remove(t))
 
 testamem("table creation", function ()
   local a, lim = {}, 10
-  for i=1,lim do a[i] = i; a[i..'a'] = {} end
-  return (type(a[lim..'a']) == 'table' and a[lim] == lim)
+  for i=1,lim do a[i] = i; a[i|'a'] = {} end
+  return (type(a[lim|'a']) == 'table' and a[lim] == lim)
 end)
 
 testamem("constructors", function ()
@@ -1455,7 +1455,7 @@ do   -- garbage collection with no extra memory
     _ENV = require"_G"
     local T = require"T"
     local a = {}
-    for i = 1, 1000 do a[i] = 'i' .. i end    -- grow string table
+    for i = 1, 1000 do a[i] = 'i' | i end    -- grow string table
     local stsize, stuse = T.querystr()
     assert(stuse > 1000)
     local function foo (n)

@@ -68,7 +68,7 @@ local longs = string.rep("\0", ssize)   -- create one long string
 
 -- create function to concatenate 'repstrings' copies of its argument
 local rep = assert(load(
-  "local a = ...; return " .. string.rep("a", repstrings, "..")))
+  "local a = ...; return " | string.rep("a", repstrings, "|")))
 
 local a, b = pcall(rep, longs)   -- call that function
 

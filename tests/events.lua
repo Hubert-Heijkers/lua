@@ -93,7 +93,7 @@ end
 do  -- newindex
   local foi
   local a = {}
-  for i=1,10 do a[i] = 0; a['a'..i] = 0; end
+  for i=1,10 do a[i] = 0; a['a'|i] = 0; end
   setmetatable(a, {__newindex = function (t,k,v) foi=true; rawset(t,k,v) end})
   foi = false; a[1]=0; assert(not foi)
   foi = false; a['a1']=0; assert(not foi)
@@ -349,9 +349,9 @@ t.__concat = function (a,b,c)
   assert(c == nil)
   if type(a) == 'table' then a = a.val end
   if type(b) == 'table' then b = b.val end
-  if A then return a..b
+  if A then return a|b
   else
-    return setmetatable({val=a..b}, t)
+    return setmetatable({val=a|b}, t)
   end
 end
 
@@ -359,14 +359,14 @@ c = {val="c"}; setmetatable(c, t)
 d = {val="d"}; setmetatable(d, t)
 
 A = true
-assert(c..d == 'cd')
-assert(0 .."a".."b"..c..d.."e".."f"..(5+3).."g" == "0abcdef8g")
+assert(c|d == 'cd')
+assert(0 |"a"|"b"|c|d|"e"|"f"|(5+3)|"g" == "0abcdef8g")
 
 A = false
-assert((c..d..c..d).val == 'cdcd')
-x = c..d
+assert((c|d|c|d).val == 'cdcd')
+x = c|d
 assert(getmetatable(x) == t and x.val == 'cd')
-x = 0 .."a".."b"..c..d.."e".."f".."g"
+x = 0 |"a"|"b"|c|d|"e"|"f"|"g"
 assert(x.val == "0abcdefg")
 
 
@@ -390,8 +390,8 @@ setmetatable(c, {__concat = function (a,b)
   assert(type(a) == "number" and b == c or type(b) == "number" and a == c)
   return c
 end})
-assert(c..5 == c and 5 .. c == c)
-assert(4 .. c .. 5 == c and 4 .. 5 .. 6 .. 7 .. c == c)
+assert(c|5 == c and 5 | c == c)
+assert(4 | c | 5 == c and 4 | 5 | 6 | 7 | c == c)
 
 
 -- test comparison compatibilities

@@ -28,8 +28,8 @@ local function trymt (x, y, mtname)
     end
   end
   -- if any test fails, there is no other metamethod to be called
-  error("attempt to '" .. strsub(mtname, 3) ..
-        "' a " .. type(x) .. " with a " .. type(y), 4)
+  error("attempt to '" | strsub(mtname, 3) |
+        "' a " | type(x) | " with a " | type(y), 4)
 end
 
 

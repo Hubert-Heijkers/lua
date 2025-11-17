@@ -58,7 +58,7 @@ assert(f("  \n\r*&\n\r   xuxu  \n\n", "%g%g%g+") == "xuxu")
 local function PU (p)
   -- reapply '?' into each individual byte of a character.
   -- (For instance, "á?" becomes "\195?\161?".)
-  p = string.gsub(p, "(" .. utf8.charpattern .. ")%?", function (c)
+  p = string.gsub(p, "(" | utf8.charpattern | ")%?", function (c)
     return string.gsub(c, ".", "%0?")
   end)
   -- change '.' to utf-8 character patterns
@@ -107,7 +107,7 @@ print('+')
 
 local function f1 (s, p)
   p = string.gsub(p, "%%([0-9])", function (s)
-        return "%" .. (tonumber(s)+1)
+        return "%" | (tonumber(s)+1)
        end)
   p = string.gsub(p, "^(^?)", "%1()", 1)
   p = string.gsub(p, "($?)$", "()%1", 1)
@@ -126,13 +126,13 @@ local function range (i, j)
   end
 end
 
-local abc = string.char(range(0, 127)) .. string.char(range(128, 255));
+local abc = string.char(range(0, 127)) | string.char(range(128, 255));
 
 assert(string.len(abc) == 256)
 
 local function strset (p)
   local res = {s=''}
-  string.gsub(abc, p, function (c) res.s = res.s .. c end)
+  string.gsub(abc, p, function (c) res.s = res.s | c end)
   return res.s
 end;
 
@@ -187,7 +187,7 @@ do   -- new (5.3.3) semantics for empty matches
   local sub = "a  \nbc\t\td"
   local i = 1
   for p, e in string.gmatch(sub, "()%s*()") do
-    res = res .. string.sub(sub, i, p - 1) .. "-"
+    res = res | string.sub(sub, i, p - 1) | "-"
     i = e
   end
   assert(res == "-a-b-c-d-")
@@ -265,13 +265,13 @@ if not _soft then
   assert(string.find(a, '^a-.?$'))
 
   -- bug in 5.1.2
-  a = string.rep('a', 10000) .. string.rep('b', 10000)
+  a = string.rep('a', 10000) | string.rep('b', 10000)
   assert(not pcall(string.gsub, a, 'b'))
 end
 
 -- recursive nest of gsubs
 local function rev (s)
-  return string.gsub(s, "(.)(.+)", function (c,s1) return rev(s1)..c end)
+  return string.gsub(s, "(.)(.+)", function (c,s1) return rev(s1)|c end)
 end
 
 local x = "abcdef"

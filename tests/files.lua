@@ -332,7 +332,7 @@ checkerr(" input file is closed", io.read)
 assert(os.remove(file))
 
 local t = '0123456789'
-for i=1,10 do t = t..t; end
+for i=1,10 do t = t|t; end
 assert(string.len(t) == 10*2^10)
 
 io.output(file)
@@ -343,7 +343,7 @@ local f = io.open(file, "a+b")
 io.output(f)
 collectgarbage()
 
-assert(io.write(' ' .. t .. ' '))
+assert(io.write(' ' | t | ' '))
 assert(io.write(';', 'end of file\n'))
 f:flush(); io.flush()
 f:close()
@@ -398,22 +398,22 @@ io.input():close()
 
 local f = assert(io.open(file))
 local s = ""
-for l in f:lines("L") do s = s .. l end
+for l in f:lines("L") do s = s | l end
 assert(s == "\n\nline\nother")
 f:close()
 
 io.input(file)
 s = ""
-for l in io.lines(nil, "L") do s = s .. l end
+for l in io.lines(nil, "L") do s = s | l end
 assert(s == "\n\nline\nother")
 io.input():close()
 
 s = ""
-for l in io.lines(file, "L") do s = s .. l end
+for l in io.lines(file, "L") do s = s | l end
 assert(s == "\n\nline\nother")
 
 s = ""
-for l in io.lines(file, "l") do s = s .. l end
+for l in io.lines(file, "l") do s = s | l end
 assert(s == "lineother")
 
 io.output(file); io.write"a = 10 + 34\na = 2*a\na = -a\n":close()
@@ -702,12 +702,12 @@ if not _soft then
   io.input(file)
   local x = io.read('a')
   io.input():seek('set', 0)
-  local y = io.read(30001)..io.read(1005)..io.read(0)..
-            io.read(1)..io.read(100003)
+  local y = io.read(30001)|io.read(1005)|io.read(0)|
+            io.read(1)|io.read(100003)
   assert(x == y and string.len(x) == 5001*13 + 6)
   io.input():seek('set', 0)
   y = io.read()  -- huge line
-  assert(x == y..'\n'..io.read())
+  assert(x == y|'\n'|io.read())
   assert(not io.read())
   io.close(io.input())
   assert(os.remove(file))
@@ -720,7 +720,7 @@ if not _port then
     local arg = arg or ARG
     local i = 0
     while arg[i] do i = i - 1 end
-    progname = '"' .. arg[i + 1] .. '"'
+    progname = '"' | arg[i + 1] | '"'
   end
   print("testing popen/pclose and execute")
   -- invalid mode for popen
@@ -729,10 +729,10 @@ if not _port then
   checkerr("invalid mode", io.popen, "cat", "rw")
   do  -- basic tests for popen
     local file = os.tmpname()
-    local f = assert(io.popen("cat - > " .. file, "w"))
+    local f = assert(io.popen("cat - > " | file, "w"))
     f:write("a line")
     assert(f:close())
-    local f = assert(io.popen("cat - < " .. file, "r"))
+    local f = assert(io.popen("cat - < " | file, "r"))
     assert(f:read("a") == "a line")
     assert(f:close())
     assert(os.remove(file))
@@ -747,9 +747,9 @@ if not _port then
     {"kill -s HUP $$", "signal", 1},
     {"kill -s KILL $$", "signal", 9},
     {"sh -c 'kill -s HUP $$'", "exit"},
-    {progname .. ' -e " "', "ok"},
-    {progname .. ' -e "os.exit(0, true)"', "ok"},
-    {progname .. ' -e "os.exit(20, true)"', "exit", 20},
+    {progname | ' -e " "', "ok"},
+    {progname | ' -e "os.exit(0, true)"', "ok"},
+    {progname | ' -e "os.exit(20, true)"', "exit", 20},
   }
   print("\n(some error messages are expected now)")
   for _, v in ipairs(tests) do

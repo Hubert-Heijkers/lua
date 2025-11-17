@@ -16,7 +16,7 @@ assert(type(package.loaded) == "table")
 assert(type(package.preload) == "table")
 
 assert(type(package.config) == "string")
-print("package config: "..string.gsub(package.config, "\n", "|"))
+print("package config: "|string.gsub(package.config, "\n", "|"))
 
 do
   -- create a path with 'max' templates,
@@ -81,18 +81,18 @@ if not _port then --[
 local dirsep = string.match(package.config, "^([^\n]+)\n")
 
 -- auxiliary directory with C modules and temporary files
-local DIR = "libs" .. dirsep
+local DIR = "libs" | dirsep
 
 -- prepend DIR to a name and correct directory separators
 local function D (x)
   local x = string.gsub(x, "/", dirsep)
-  return DIR .. x
+  return DIR | x
 end
 
 -- prepend DIR and pospend proper C lib. extension to a name
 local function DC (x)
   local ext = (dirsep == '\\') and ".dll" or ".so"
-  return D(x .. ext)
+  return D(x | ext)
 end
 
 
@@ -235,7 +235,7 @@ package.path = oldpath
 -- check 'require' error message
 local fname = "file_does_not_exist2"
 local m, err = pcall(require, fname)
-for t in string.gmatch(package.path..";"..package.cpath, "[^;]+") do
+for t in string.gmatch(package.path|";"|package.cpath, "[^;]+") do
   t = string.gsub(t, "?", fname)
   assert(string.find(err, t, 1, true))
 end
@@ -268,27 +268,27 @@ local p = ""   -- On Mac OS X, redefine this to "_"
 -- check whether loadlib works in this system
 local st, err, when = package.loadlib(DC"lib1", "*")
 if not st then
-  local f, err, when = package.loadlib("donotexist", p.."xuxu")
+  local f, err, when = package.loadlib("donotexist", p|"xuxu")
   assert(not f and type(err) == "string" and when == "absent")
   ;(Message or print)('\n >>> cannot load dynamic library <<<\n')
   print(err, when)
 else
   -- tests for loadlib
-  local f = assert(package.loadlib(DC"lib1", p.."onefunction"))
+  local f = assert(package.loadlib(DC"lib1", p|"onefunction"))
   local a, b = f(15, 25)
   assert(a == 25 and b == 15)
 
-  f = assert(package.loadlib(DC"lib1", p.."anotherfunc"))
+  f = assert(package.loadlib(DC"lib1", p|"anotherfunc"))
   assert(f(10, 20) == "10%20\n")
 
   -- check error messages
-  local f, err, when = package.loadlib(DC"lib1", p.."xuxu")
+  local f, err, when = package.loadlib(DC"lib1", p|"xuxu")
   assert(not f and type(err) == "string" and when == "init")
-  f, err, when = package.loadlib("donotexist", p.."xuxu")
+  f, err, when = package.loadlib("donotexist", p|"xuxu")
   assert(not f and type(err) == "string" and when == "open")
 
   -- symbols from 'lib1' must be visible to other libraries
-  f = assert(package.loadlib(DC"lib11", p.."luaopen_lib11"))
+  f = assert(package.loadlib(DC"lib11", p|"luaopen_lib11"))
   assert(f() == "exported")
 
   -- test C modules with prefixes in names

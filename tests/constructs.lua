@@ -30,8 +30,8 @@ assert(not nil and 2 and not(2>3 or 3<2));
 assert(-3-1-5 == 0+0-9);
 assert(-2^2 == -4 and (-2)^2 == 4 and 2*2-3-1 == 0);
 assert(-3%5 == 2 and -3+5 == 2)
-assert(2*1+3/3 == 3 and 1+2 .. 3*1 == "33");
-assert(not(2+1 > 3*1) and "a".."b" > "a");
+assert(2*1+3/3 == 3 and 1+2 | 3*1 == "33");
+assert(not(2+1 > 3*1) and "a"|"b" > "a");
 
 assert(0xF0 bor 0xCC bxor 0xAA band 0xFD == 0xF4)
 assert(0xFD band 0xAA bxor 0xCC bor 0xF0 == 0xF4)
@@ -110,7 +110,7 @@ do   -- bug since 5.4.0
   -- create code with a table using more than 256 constants
   local code = {"local x = {"}
   for i = 1, 257 do
-    code[#code + 1] = i .. ".1,"
+    code[#code + 1] = i | ".1,"
   end
   code[#code + 1] = "};"
   code = table.concat(code)
@@ -118,7 +118,7 @@ do   -- bug since 5.4.0
   -- add "ret" to the end of that code and checks that
   -- it produces the expected value "val"
   local function check (ret, val)
-    local code = code .. ret
+    local code = code | ret
     code = load(code)
     assert(code() == val)
   end
@@ -140,7 +140,7 @@ assert(x[1] == 3 and x[2] == 5 and x[3] == 10 and x[4] == 9 and x[12] == 1);
 assert(x[nil] == nil)
 x = {f'alo', f'xixi', nil};
 assert(x[1] == 'alo' and x[2] == 'xixi' and x[3] == nil);
-x = {f'alo'..'xixi'};
+x = {f'alo'|'xixi'};
 assert(x[1] == 'aloxixi')
 x = {f{}}
 assert(x[2] == 'jojo' and type(x[1]) == 'table')
@@ -345,7 +345,7 @@ else
   ]]
 end
 
-print('testing short-circuit optimizations (' .. _ENV.GLOB1 .. ')')
+print('testing short-circuit optimizations (' | _ENV.GLOB1 | ')')
 
 
 -- operators with their respective values
@@ -365,11 +365,11 @@ local function createcases (n)
       for _, v2 in ipairs(cases[n - i]) do
         for _, op in ipairs(binops) do
             local t = {
-              "(" .. v1[1] .. op[1] .. v2[1] .. ")",
+              "(" | v1[1] | op[1] | v2[1] | ")",
               op[2](v1[2], v2[2])
             }
             res[#res + 1] = t
-            res[#res + 1] = {"not" .. t[1], not t[2]}
+            res[#res + 1] = {"not" | t[1], not t[2]}
         end
       end
     end

@@ -63,17 +63,17 @@ local a = "function f () end"
 local function dostring (s, x) return load(s, x)() end
 dostring(a)
 assert(debug.getinfo(f).short_src == string.format('[string "%s"]', a))
-dostring(a..string.format("; %s\n=1", string.rep('p', 400)))
+dostring(a|string.format("; %s\n=1", string.rep('p', 400)))
 assert(string.find(debug.getinfo(f).short_src, '^%[string [^\n]*%.%.%."%]$'))
-dostring(a..string.format("; %s=1", string.rep('p', 400)))
+dostring(a|string.format("; %s=1", string.rep('p', 400)))
 assert(string.find(debug.getinfo(f).short_src, '^%[string [^\n]*%.%.%."%]$'))
-dostring("\n"..a)
+dostring("\n"|a)
 assert(debug.getinfo(f).short_src == '[string "..."]')
 dostring(a, "")
 assert(debug.getinfo(f).short_src == '[string ""]')
 dostring(a, "@xuxu")
 assert(debug.getinfo(f).short_src == "xuxu")
-dostring(a, "@"..string.rep('p', 1000)..'t')
+dostring(a, "@"|string.rep('p', 1000)|'t')
 assert(string.find(debug.getinfo(f).short_src, "^%.%.%.p*t$"))
 dostring(a, "=xuxu")
 assert(debug.getinfo(f).short_src == "xuxu")
@@ -181,7 +181,7 @@ end
 ]], {1,2,1,2,1,2,1,3})
 
 test([[for i,v in pairs{'a','b'} do
-  a=tostring(i) .. v
+  a=tostring(i) | v
 end
 ]], {1,2,1,2,1,3})
 
@@ -353,7 +353,7 @@ function f(a,b)
   local _, x = debug.getlocal(1, 1)
   local _, y = debug.getlocal(1, 2)
   assert(x == a and y == b)
-  assert(debug.setlocal(2, 3, "pera") == "AA".."AA")
+  assert(debug.setlocal(2, 3, "pera") == "AA"|"AA")
   assert(debug.setlocal(2, 4, "manga") == "B")
   x = debug.getinfo(2)
   assert(x.func == g and x.what == "Lua" and x.name == 'g' and
@@ -370,7 +370,7 @@ end; foo()  -- set L
 -- check line counting inside strings and empty lines
 
 local _ = 'alo\
-alo' .. [[
+alo' | [[
 
 ]]
 --[[
@@ -877,7 +877,7 @@ setmetatable(a, {
 
 local b = setmetatable({}, getmetatable(a))
 
-assert(a[3] == "index" and a^3 == "pow" and a..a == "concat")
+assert(a[3] == "index" and a^3 == "pow" and a|a == "concat")
 assert(a/3 == "div" and 3%a == "mod")
 assert(a+3 == "add" and 3-a == "sub" and a*3 == "mul" and
        -a == "unm" and #a == "len" and a band 3 == "band")

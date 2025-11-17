@@ -77,9 +77,9 @@ assert("1234.0" shl "5.0" == 1234 * 32)
 assert("0xffff.0" bxor "0xAAAA" == 0x5555)
 assert(bnot "0x0.000p4" == -1)
 
-assert(("7" .. 3) shl 1 == 146)
-assert(0xffffffff shr (1 .. "9") == 0x1fff)
-assert(10 bor (1 .. "9") == 27)
+assert(("7" | 3) shl 1 == 146)
+assert(0xffffffff shr (1 | "9") == 0x1fff)
+assert(10 bor (1 | "9") == 27)
 
 do
   local st, msg = pcall(function () return 4 band "a" end)

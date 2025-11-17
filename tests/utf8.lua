@@ -19,7 +19,7 @@ local function len (s)
 end
 
 
-local justone = "^" .. utf8.charpattern .. "$"
+local justone = "^" | utf8.charpattern | "$"
 
 -- 't' is the list of codepoints of 's'
 local function checksyntax (s, t)
@@ -245,7 +245,7 @@ check("𨳊𩶘𦧺𨳒𥄫𤓓\xF4\x8F\xBF\xBF",
 
 
 local i = 0
-for p, c in string.gmatch(x, "()(" .. utf8.charpattern .. ")") do
+for p, c in string.gmatch(x, "()(" | utf8.charpattern | ")") do
   i = i + 1
   assert(utf8.offset(x, i) == p)
   assert(utf8.len(x, p) == utf8.len(x) - i + 1)

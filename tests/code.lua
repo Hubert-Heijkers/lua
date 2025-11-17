@@ -168,7 +168,7 @@ check(function () repeat local x = 1 until true end,
 
 
 -- concat optimization
-check(function (a,b,c,d) return a..b..c..d end,
+check(function (a,b,c,d) return a|b|c|d end,
   'MOVE', 'MOVE', 'MOVE', 'MOVE', 'CONCAT', 'RETURN1')
 
 -- not

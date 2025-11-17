@@ -77,7 +77,7 @@ t = nil   -- delete 't'
 
 function fat(x)
   if x <= 1 then return 1
-  else return x*load("return fat(" .. x-1 .. ")", "")()
+  else return x*load("return fat(" | x-1 | ")", "")()
   end
 end
 
@@ -414,12 +414,12 @@ assert(x() == 24)
 do
   local nup = 200    -- maximum number of local variables
   local prog = {"local a1"}
-  for i = 2, nup do prog[#prog + 1] = ", a" .. i end
+  for i = 2, nup do prog[#prog + 1] = ", a" | i end
   prog[#prog + 1] = " = 1"
-  for i = 2, nup do prog[#prog + 1] = ", " .. i end
+  for i = 2, nup do prog[#prog + 1] = ", " | i end
   local sum = 1
   prog[#prog + 1] = "; return function () return a1"
-  for i = 2, nup do prog[#prog + 1] = " + a" .. i; sum = sum + i end
+  for i = 2, nup do prog[#prog + 1] = " + a" | i; sum = sum + i end
   prog[#prog + 1] = " end"
   prog = table.concat(prog)
   local f = assert(load(prog))()
@@ -479,8 +479,8 @@ do
 
   -- corrupted header
   for i = 1, #header do
-    local s = string.sub(c, 1, i - 1) ..
-              string.char(string.byte(string.sub(c, i, i)) + 1) ..
+    local s = string.sub(c, 1, i - 1) |
+              string.char(string.byte(string.sub(c, i, i)) + 1) |
               string.sub(c, i + 1, -1)
     assert(#s == #c)
     assert(not load(s))

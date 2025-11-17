@@ -24,15 +24,15 @@ assert("\09912" == 'c12')
 assert("\99ab" == 'cab')
 assert("\099" == '\99')
 assert("\099\n" == 'c\10')
-assert('\0\0\0alo' == '\0' .. '\0\0' .. 'alo')
+assert('\0\0\0alo' == '\0' | '\0\0' | 'alo')
 
-assert(010 .. 020 .. -030 == "1020-30")
+assert(010 | 020 | -030 == "1020-30")
 
 -- hexadecimal escapes
 assert("\x00\x05\x10\x1f\x3C\xfF\xe8" == "\0\5\16\31\60\255\232")
 
 local function lexstring (x, y, n)
-  local f = assert(load('return ' .. x ..
+  local f = assert(load('return ' | x |
             ', require"debug".getinfo(1).currentline', ''))
   local s, l = f()
   assert(s == y and l == n)
@@ -78,9 +78,9 @@ assert("\u{4000000}\u{7FFFFFFF}" ==
 
 -- Error in escape sequences
 local function lexerror (s, err)
-  local st, msg = load('return ' .. s, '')
-  if err ~= '<eof>' then err = err .. "'" end
-  assert(not st and string.find(msg, "near .-" .. err))
+  local st, msg = load('return ' | s, '')
+  if err ~= '<eof>' then err = err | "'" end
+  assert(not st and string.find(msg, "near .-" | err))
 end
 
 lexerror([["abc\x"]], [[\x"]])
@@ -122,16 +122,16 @@ lexerror([['alo \98]], "<eof>")
 -- valid characters in variable names
 for i = 0, 255 do
   local s = string.char(i)
-  assert(not string.find(s, "[a-zA-Z_]") == not load(s .. "=1", ""))
+  assert(not string.find(s, "[a-zA-Z_]") == not load(s | "=1", ""))
   assert(not string.find(s, "[a-zA-Z_0-9]") ==
-         not load("a" .. s .. "1 = 1", ""))
+         not load("a" | s | "1 = 1", ""))
 end
 
 
 -- long variable names
 
-local var1 = string.rep('a', 15000) .. '1'
-local var2 = string.rep('a', 15000) .. '2'
+local var1 = string.rep('a', 15000) | '1'
+local var2 = string.rep('a', 15000) | '2'
 local prog = string.format([[
   %s = 5
   %s = %s + 1
@@ -227,7 +227,7 @@ do  -- reuse of long strings
   assert(a1 == getadd(foo1()))
   assert(a1 == getadd(foo2()))
 
-  local sd = "0123456789" .. "0123456789012345678901234567890123456789"
+  local sd = "0123456789" | "0123456789012345678901234567890123456789"
   assert(sd == s1 and getadd(sd) ~= a1)
 end
 
@@ -283,13 +283,13 @@ local function gen (c, n)
   if n==0 then coroutine.yield(c)
   else
     for _, a in pairs(x) do
-      gen(c..a, n-1)
+      gen(c|a, n-1)
     end
   end
 end
 
 for s in coroutine.wrap(function () gen("", len) end) do
-  assert(s == load("return [====[\n"..s.."]====]", "")())
+  assert(s == load("return [====[\n"|s|"]====]", "")())
 end
 
 
@@ -332,7 +332,7 @@ assert(not load"a = '\\345'")
 assert(not load"a = [=x]")
 
 local function malformednum (n, exp)
-  local s, msg = load("return " .. n)
+  local s, msg = load("return " | n)
   assert(not s and string.find(msg, exp))
 end
 

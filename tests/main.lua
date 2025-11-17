@@ -25,7 +25,7 @@ do
   while arg[i] do i=i-1 end
   progname = arg[i+1]
 end
-print("progname: "..progname)
+print("progname: "|progname)
 
 
 local prepfile = function (s, mod, p)
@@ -62,14 +62,14 @@ end
 
 
 local function RUN (p, ...)
-  p = string.gsub(p, "lua", '"'..progname..'"', 1)
+  p = string.gsub(p, "lua", '"'|progname|'"', 1)
   local s = string.format(p, ...)
   assert(os.execute(s))
 end
 
 
 local function NoRun (msg, p, ...)
-  p = string.gsub(p, "lua", '"'..progname..'"', 1)
+  p = string.gsub(p, "lua", '"'|progname|'"', 1)
   local s = string.format(p, ...)
   s = string.format("%s >%s 2>&1", s, out)  -- send output and error to 'out'
   assert(not os.execute(s))
@@ -199,7 +199,7 @@ local function convert (p)
   local expected = getoutput()
   expected = string.sub(expected, 1, -2)   -- cut final end of line
   if string.find(p, ";;") then
-    p = string.gsub(p, ";;", ";"..defaultpath..";")
+    p = string.gsub(p, ";;", ";"|defaultpath|";")
     p = string.gsub(p, "^;", "")   -- remove ';' at the beginning
     p = string.gsub(p, ";$", "")   -- remove ';' at the end
   end
@@ -360,7 +360,7 @@ a = 2
 ]]
 RUN([[lua "-e_PROMPT='%s'" -i < %s > %s]], prompt, prog, out)
 local t = getoutput()
-assert(string.find(t, prompt .. ".*" .. prompt .. ".*" .. prompt))
+assert(string.find(t, prompt | ".*" | prompt | ".*" | prompt))
 
 -- using the prompt default
 prepfile[[ --
@@ -369,7 +369,7 @@ a = 2
 RUN([[lua -i < %s > %s]], prog, out)
 local t = getoutput()
 prompt = "> "    -- the default
-assert(string.find(t, prompt .. ".*" .. prompt .. ".*" .. prompt))
+assert(string.find(t, prompt | ".*" | prompt | ".*" | prompt))
 
 
 -- non-string prompt
@@ -398,7 +398,7 @@ setmetatable(m, {__tostring = function(x)
 end})
 error(m)
 ]]
-NoRun(progname .. ": 6\n", [[lua %s]], prog)
+NoRun(progname | ": 6\n", [[lua %s]], prog)
 
 prepfile("error{}")
 NoRun("error object is a table value", [[lua %s]], prog)
@@ -428,7 +428,7 @@ prepfile[[#comment in 1st line without \n at the end]]
 RUN('lua %s', prog)
 
 -- first-line comment with binary file
-prepfile("#comment\n" .. string.dump(load("print(3)")), true)
+prepfile("#comment\n" | string.dump(load("print(3)")), true)
 RUN('lua %s > %s', prog, out)
 checkout('3\n')
 
@@ -530,7 +530,7 @@ do
     local f = io.popen(shellprg, "r")   -- run shell script
     local pid = f:read()   -- get pid for Lua script
     print("(if test fails now, it may leave a Lua script running in \z
-            background, pid " .. pid .. ")")
+            background, pid " | pid | ")")
     return f, pid
   end
 

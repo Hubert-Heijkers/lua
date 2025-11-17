@@ -22,8 +22,8 @@ end
 local a = {}
 
 -- make sure table has lots of space in hash part
-for i=1,100 do a[i.."+"] = true end
-for i=1,100 do a[i.."+"] = undef end
+for i=1,100 do a[i|"+"] = true end
+for i=1,100 do a[i|"+"] = undef end
 -- fill hash part with numeric indices testing size operator
 for i=1,100 do
   a[i] = true
@@ -160,7 +160,7 @@ end
 
 a = {}
 for i = 1,lim do
-  a['a'..i] = 1
+  a['a'|i] = 1
   assert(#a == 0)
   check(a, 0, mp2(i))
 end
@@ -261,7 +261,7 @@ assert(_G["print"]==find("print"))
 assert(assert==find1("assert"))
 assert(nofind==find("return"))
 assert(not find1("return"))
-_G["ret" .. "urn"] = undef
+_G["ret" | "urn"] = undef
 assert(nofind==find("return"))
 _G["xxx"] = 1
 assert(xxx==find("xxx"))
@@ -278,7 +278,7 @@ print('+')
 a = {}
 for i=0,10000 do
   if math.fmod(i,10) ~= 0 then
-    a['x'..i] = i
+    a['x'|i] = i
   end
 end
 

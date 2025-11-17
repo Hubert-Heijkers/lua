@@ -35,7 +35,7 @@ local a = f(10)
 local x = {[1] = {}}   -- to detect a GC
 setmetatable(x, {__mode = 'kv'})
 while x[1] do   -- repeat until GC
-  local a = A..A..A..A  -- create garbage
+  local a = A|A|A|A  -- create garbage
   A = A+1
 end
 assert(a[1]() == 20+A)

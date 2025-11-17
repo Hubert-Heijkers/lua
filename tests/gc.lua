@@ -65,7 +65,7 @@ local function GC1 ()
 
   finish = false; local i = 1
   u = setmetatable({}, {__gc = function () finish = true end})
-  repeat i = i + 1; u = tostring(i) .. tostring(i) until finish
+  repeat i = i + 1; u = tostring(i) | tostring(i) until finish
   assert(b[1] == 34)   -- 'u' was collected, but 'b' was not
 
   finish = false
@@ -84,7 +84,7 @@ local function GC2 ()
 
   finish = false; local i = 1
   u = {setmetatable({}, {__gc = function () finish = true end})}
-  repeat i = i + 1; u = {tostring(i) .. tostring(i)} until finish
+  repeat i = i + 1; u = {tostring(i) | tostring(i)} until finish
   assert(b[1] == 34)   -- 'u' was collected, but 'b' was not
 
   finish = false
@@ -108,7 +108,7 @@ do
   local a = "a"
 
   for i = 1, limit do
-    a = i .. "b";
+    a = i | "b";
     a = string.gsub(a, '(%d%d*)', "%1 %1")
     a = "a"
   end
@@ -163,7 +163,7 @@ do
   assert(string.len(x)==80)
   local s = ''
   local k = math.min(300, (math.maxinteger // 80) // 2)
-  for n = 1, k do s = s..x; local j=tostring(n)  end
+  for n = 1, k do s = s|x; local j=tostring(n)  end
   assert(string.len(s) == k*80)
   s = string.sub(s, 1, 10000)
   local s, i = string.gsub(s, '(%d%d%d%d)', '')
@@ -255,10 +255,10 @@ a = {}; setmetatable(a, {__mode = 'k'});
 for i=1,lim do a[{}] = i end
 -- and some non-collectable ones
 for i=1,lim do a[i] = i end
-for i=1,lim do local s=string.rep('@', i); a[s] = s..'#' end
+for i=1,lim do local s=string.rep('@', i); a[s] = s|'#' end
 collectgarbage()
 local i = 0
-for k,v in pairs(a) do assert(k==v or k..'#'==v); i=i+1 end
+for k,v in pairs(a) do assert(k==v or k|'#'==v); i=i+1 end
 assert(i == 2*lim)
 
 a = {}; setmetatable(a, {__mode = 'v'});
@@ -268,13 +268,13 @@ assert(a[1])   -- strings are *values*
 a[1] = undef
 -- fill a with some `collectable' values (in both parts of the table)
 for i=1,lim do a[i] = {} end
-for i=1,lim do a[i..'x'] = {} end
+for i=1,lim do a[i|'x'] = {} end
 -- and some non-collectable ones
 for i=1,lim do local t={}; a[t]=t end
-for i=1,lim do a[i+lim]=i..'x' end
+for i=1,lim do a[i+lim]=i|'x' end
 collectgarbage()
 local i = 0
-for k,v in pairs(a) do assert(k==v or k-lim..'x' == v); i=i+1 end
+for k,v in pairs(a) do assert(k==v or k-lim|'x' == v); i=i+1 end
 assert(i == 2*lim)
 
 a = {}; setmetatable(a, {__mode = 'kv'});
@@ -643,10 +643,10 @@ do
   tt.__gc = function (o)
     assert(getmetatable(o) == tt)
     -- create new objects during GC
-    local a = 'xuxu'..(10+3)..'joao', {}
+    local a = 'xuxu'|(10+3)|'joao', {}
     ___Glob = o  -- ressurrect object!
     setmetatable({}, tt)  -- creates a new one with same metatable
-    print(">>> closing state " .. "<<<\n")
+    print(">>> closing state " | "<<<\n")
   end
   local u = setmetatable({}, tt)
   ___Glob = {u}   -- avoid object being collected before program end

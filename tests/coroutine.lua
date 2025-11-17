@@ -323,7 +323,7 @@ assert(not r and msg == 240)
 do
   local function f (c)
           assert(not coroutine.isyieldable())
-          return c .. c
+          return c | c
         end
 
   local co = coroutine.wrap(function (c)
@@ -826,7 +826,7 @@ local mt = {
 
   __concat = function(a,b)
                coroutine.yield(nil, "concat");
-               return val(a) .. val(b)
+               return val(a) | val(b)
              end,
   __index = function (t,k) coroutine.yield(nil, "idx"); return t.k[k] end,
   __newindex = function (t,k,v) coroutine.yield(nil, "nidx"); t.k[k] = v end,
@@ -909,12 +909,12 @@ assert(run(function () return 1 shl a end, {"shl"}) == 1 shl 10)
 assert(run(function () return 2 bxor a end, {"bxor"}) == 2 bxor 10)
 
 
-assert(run(function () return a..b end, {"concat"}) == "1012")
+assert(run(function () return a|b end, {"concat"}) == "1012")
 
-assert(run(function() return a .. b .. c .. a end,
+assert(run(function() return a | b | c | a end,
        {"concat", "concat", "concat"}) == "1012hello10")
 
-assert(run(function() return "a" .. "b" .. a .. "c" .. c .. b .. "x" end,
+assert(run(function() return "a" | "b" | a | "c" | c | b | "x" end,
        {"concat", "concat", "concat"}) == "ab10chello12x")
 
 

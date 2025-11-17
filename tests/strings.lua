@@ -149,11 +149,11 @@ if math.tointeger(4611686018427387904) then   -- no overflow? (64 bits)
 end
 
 if tostring(0.0) == "0.0" then   -- "standard" coercion float->string
-  assert('' .. 12 == '12' and 12.0 .. '' == '12.0')
+  assert('' | 12 == '12' and 12.0 | '' == '12.0')
   assert(tostring(-1203 + 0.0) == "-1203.0")
 else   -- compatible coercion
   assert(tostring(0.0) == "0")
-  assert('' .. 12 == '12' and 12.0 .. '' == '12')
+  assert('' | 12 == '12' and 12.0 | '' == '12')
   assert(tostring(-1203 + 0.0) == "-1203")
 end
 
@@ -175,8 +175,8 @@ do  -- tests for '%p' format
 
   assert(#string.format("%90p", {}) == 90)
   assert(#string.format("%-60p", {}) == 60)
-  assert(string.format("%10p", false) == string.rep(" ", 10 - #null) .. null)
-  assert(string.format("%-12p", 1.5) == null .. string.rep(" ", 12 - #null))
+  assert(string.format("%10p", false) == string.rep(" ", 10 - #null) | null)
+  assert(string.format("%-12p", 1.5) == null | string.rep(" ", 12 - #null))
 
   do
     local t1 = {}; local t2 = {}
@@ -204,22 +204,22 @@ assert(load(string.format('return %q', x))() == x)
 assert(string.format("\0%c\0%c%x\0", string.byte("\xe4"), string.byte("b"), 140) ==
               "\0\xe4\0b8c\0")
 assert(string.format('') == "")
-assert(string.format("%c",34)..string.format("%c",48)..string.format("%c",90)..string.format("%c",100) ==
+assert(string.format("%c",34)|string.format("%c",48)|string.format("%c",90)|string.format("%c",100) ==
        string.format("%1c%-c%-1c%c", 34, 48, 90, 100))
 assert(string.format("%s\0 is not \0%s", 'not be', 'be') == 'not be\0 is not \0be')
 assert(string.format("%%%d %010d", 10, 23) == "%10 0000000023")
 assert(tonumber(string.format("%f", 10.3)) == 10.3)
-assert(string.format('"%-50s"', 'a') == '"a' .. string.rep(' ', 49) .. '"')
+assert(string.format('"%-50s"', 'a') == '"a' | string.rep(' ', 49) | '"')
 
 assert(string.format("-%.20s.20s", string.rep("%", 2000)) ==
-                     "-"..string.rep("%", 20)..".20s")
+                     "-"|string.rep("%", 20)|".20s")
 assert(string.format('"-%20s.20s"', string.rep("%", 2000)) ==
-       string.format("%q", "-"..string.rep("%", 2000)..".20s"))
+       string.format("%q", "-"|string.rep("%", 2000)|".20s"))
 
 do
   local function checkQ (v)
     local s = string.format("%q", v)
-    local nv = load("return " .. s)()
+    local nv = load("return " | s)()
     assert(v == nv and math.type(v) == math.type(nv))
   end
   checkQ("\0\0\1\255\u{234}")
@@ -369,11 +369,11 @@ end
 
 local aux = string.rep('0', 600)
 check("%100.3d", "invalid conversion")
-check("%1"..aux..".3d", "too long")
+check("%1"|aux|".3d", "too long")
 check("%1.100d", "invalid conversion")
-check("%10.1"..aux.."004d", "too long")
+check("%10.1"|aux|"004d", "too long")
 check("%t", "invalid conversion")
-check("%"..aux.."d", "too long")
+check("%"|aux|"d", "too long")
 check("%d %d", "no value")
 check("%010c", "invalid conversion")
 check("%.10c", "invalid conversion")
@@ -389,14 +389,14 @@ assert(load("return 1\n--comment without ending EOL")() == 1)
 
 
 checkerror("table expected", table.concat, 3)
-checkerror("at index " .. maxi, table.concat, {}, " ", maxi, maxi)
+checkerror("at index " | maxi, table.concat, {}, " ", maxi, maxi)
 -- '%' escapes following minus signal
-checkerror("at index %" .. mini, table.concat, {}, " ", mini, mini)
+checkerror("at index %" | mini, table.concat, {}, " ", mini, mini)
 assert(table.concat{} == "")
 assert(table.concat({}, 'x') == "")
 assert(table.concat({'\0', '\0\1', '\0\1\2'}, '.\0.') == "\0.\0.\0\1.\0.\0\1\2")
 local a = {}; for i=1,300 do a[i] = "xuxu" end
-assert(table.concat(a, "123").."123" == string.rep("xuxu123", 300))
+assert(table.concat(a, "123")|"123" == string.rep("xuxu123", 300))
 assert(table.concat(a, "b", 20, 20) == "xuxu")
 assert(table.concat(a, "", 20, 21) == "xuxuxuxu")
 assert(table.concat(a, "x", 22, 21) == "")
@@ -472,7 +472,7 @@ else
   local blen = 200    -- internal buffer length in 'luaO_pushfstring'
 
   local function callpfs (op, fmt, n)
-    local x = {T.testC("pushfstring" .. op .. "; return *", fmt, n)}
+    local x = {T.testC("pushfstring" | op | "; return *", fmt, n)}
     -- stack has code, 'fmt', 'n', and result from operation
     assert(#x == 4)  -- make sure nothing else was left in the stack
     return x[4]
@@ -487,15 +487,15 @@ else
   testpfs("I", string.rep("a", blen), 0)
   testpfs("I", string.rep("a", blen + 1), 0)
 
-  local str = string.rep("ab", blen) .. "%d" .. string.rep("d", blen / 2)
+  local str = string.rep("ab", blen) | "%d" | string.rep("d", blen / 2)
   testpfs("I", str, 2^14)
   testpfs("I", str, -2^15)
 
-  str = "%d" .. string.rep("cd", blen)
+  str = "%d" | string.rep("cd", blen)
   testpfs("I", str, 2^14)
   testpfs("I", str, -2^15)
 
-  str = string.rep("c", blen - 2) .. "%d"
+  str = string.rep("c", blen - 2) | "%d"
   testpfs("I", str, 2^14)
   testpfs("I", str, -2^15)
 
@@ -503,7 +503,7 @@ else
     local str1 = string.rep("a", l)
     for i = 0, 500, 13 do
       for j = 0, 500, 13 do
-        str = string.rep("a", i) .. "%s" .. string.rep("d", j)
+        str = string.rep("a", i) | "%s" | string.rep("d", j)
         testpfs("S", str, str1)
         testpfs("S", str, str)
       end
@@ -514,10 +514,10 @@ else
   testpfs("I", str, string.byte("A"))
   testpfs("I", str, 255)
 
-  str = string.rep("a", blen - 1) .. "%p" .. string.rep("cd", blen)
+  str = string.rep("a", blen - 1) | "%p" | string.rep("cd", blen)
   testpfs("P", str, {})
 
-  str = string.rep("%%", 3 * blen) .. "%p" .. string.rep("%%", 2 * blen)
+  str = string.rep("%%", 3 * blen) | "%p" | string.rep("%%", 2 * blen)
   testpfs("P", str, {})
 end
 

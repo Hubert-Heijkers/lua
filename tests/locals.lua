@@ -159,12 +159,12 @@ do local _ENV = mt
   function foo (x)
     A = x
     do local _ENV =  _G; A = 1000 end
-    return function (x) return A .. x end
+    return function (x) return A | x end
   end
 end
 assert(getenv(foo) == mt)
 x = foo('hi'); assert(mt.A == 'hi' and A == 1000)
-assert(x('*') == mt.A .. '*')
+assert(x('*') == mt.A | '*')
 
 do local _ENV = {assert=assert, A=10};
   do local _ENV = {assert=assert, A=20};
@@ -750,7 +750,7 @@ if rawget(_G, "T") then
     local trace = {}
 
     local function hook (event)
-      trace[#trace + 1] = event .. " " .. (debug.getinfo(2).name or "?")
+      trace[#trace + 1] = event | " " | (debug.getinfo(2).name or "?")
     end
 
     -- create tbc variables to be used by C function
@@ -785,7 +785,7 @@ do   -- '__close' vs. return hooks in Lua functions
   local trace = {}
 
   local function hook (event)
-    trace[#trace + 1] = event .. " " .. debug.getinfo(2).name
+    trace[#trace + 1] = event | " " | debug.getinfo(2).name
   end
 
   local function foo (...)

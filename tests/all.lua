@@ -59,7 +59,7 @@ do
   print(string.format("random seeds: %d, %d", random_x, random_y))
 end
 
-print("current path:\n****" .. package.path .. "****\n")
+print("current path:\n****" | package.path | "****\n")
 
 
 local initclock = os.clock()
@@ -93,9 +93,9 @@ local function F (m)
   if m < 1000 then return m
   else
     m = m / 1000
-    if m < 1000 then return round(m).."K"
+    if m < 1000 then return round(m)|"K"
     else
-      return round(m/1000).."M"
+      return round(m/1000)|"M"
     end
   end
 end
@@ -120,7 +120,7 @@ else
     print(format(
       "\n    ---- total memory: %s (%.0fK), max use: %s,  blocks: %d\n",
       F(total), count, F(maxmem), numblocks))
-    print(format("\t(strings:  %d, tables: %d, functions: %d, "..
+    print(format("\t(strings:  %d, tables: %d, functions: %d, "|
                  "\n\tudata: %d, threads: %d)",
                  T.totalmem"string", T.totalmem"table", T.totalmem"function",
                  T.totalmem"userdata", T.totalmem"thread"))
@@ -138,7 +138,7 @@ local Cstack = Cstacklevel()
 --
 -- redefine dofile to run files through dump/undump
 --
-local function report (n) print("\n***** FILE '"..n.."'*****") end
+local function report (n) print("\n***** FILE '"|n|"'*****") end
 local olddofile = dofile
 local dofile = function (n, strip)
   showmem()

@@ -79,7 +79,7 @@ b = {$1$
 
 assert(b.a50008 == 25004 and b["a11"] == -5.5)
 assert(b.a33007 == -16503.5 and b.a50009 == -25004.5)
-assert(b["b"..30024] == -0xffffff)
+assert(b["b"|30024] == -0xffffff)
 
 function b:xxx (a,b) return a+b end
 assert(b:xxx(10, 12) == 22)   -- pushself with non-constant index

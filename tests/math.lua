@@ -356,15 +356,15 @@ do
   assert(eqT(tonumber(incd(minint)), minint - 1.0))
 
   -- large numbers
-  assert(eqT(tonumber("1"..string.rep("0", 30)), 1e30))
-  assert(eqT(tonumber("-1"..string.rep("0", 30)), -1e30))
+  assert(eqT(tonumber("1"|string.rep("0", 30)), 1e30))
+  assert(eqT(tonumber("-1"|string.rep("0", 30)), -1e30))
 
   -- hexa format still wraps around
-  assert(eqT(tonumber("0x1"..string.rep("0", 30)), 0))
+  assert(eqT(tonumber("0x1"|string.rep("0", 30)), 0))
 
   -- lexer in the limits
-  assert(minint == load("return " .. minint)())
-  assert(eqT(maxint, load("return " .. maxint)()))
+  assert(minint == load("return " | minint)())
+  assert(eqT(maxint, load("return " | maxint)()))
 
   assert(eqT(10000000000000000000000.0, 10000000000000000000000))
   assert(eqT(-10000000000000000000000.0, -10000000000000000000000))
@@ -396,8 +396,8 @@ assert(tonumber('-012') == -010-2)
 assert(tonumber('-1.2e2') == - - -120)
 
 assert(tonumber("0xffffffffffff") == (1 shl (4*12)) - 1)
-assert(tonumber("0x"..string.rep("f", (intbits//4))) == -1)
-assert(tonumber("-0x"..string.rep("f", (intbits//4))) == 1)
+assert(tonumber("0x"|string.rep("f", (intbits//4))) == -1)
+assert(tonumber("-0x"|string.rep("f", (intbits//4))) == 1)
 
 -- testing 'tonumber' with base
 assert(tonumber('  001010  ', 2) == 10)
@@ -420,19 +420,19 @@ end
 
 if not _soft then
   -- tests with very long numerals
-  assert(tonumber("0x"..string.rep("f", 13)..".0") == 2.0^(4*13) - 1)
-  assert(tonumber("0x"..string.rep("f", 150)..".0") == 2.0^(4*150) - 1)
-  assert(tonumber("0x"..string.rep("f", 300)..".0") == 2.0^(4*300) - 1)
-  assert(tonumber("0x"..string.rep("f", 500)..".0") == 2.0^(4*500) - 1)
-  assert(tonumber('0x3.' .. string.rep('0', 1000)) == 3)
-  assert(tonumber('0x' .. string.rep('0', 1000) .. 'a') == 10)
-  assert(tonumber('0x0.' .. string.rep('0', 13).."1") == 2.0^(-4*14))
-  assert(tonumber('0x0.' .. string.rep('0', 150).."1") == 2.0^(-4*151))
-  assert(tonumber('0x0.' .. string.rep('0', 300).."1") == 2.0^(-4*301))
-  assert(tonumber('0x0.' .. string.rep('0', 500).."1") == 2.0^(-4*501))
+  assert(tonumber("0x"|string.rep("f", 13)|".0") == 2.0^(4*13) - 1)
+  assert(tonumber("0x"|string.rep("f", 150)|".0") == 2.0^(4*150) - 1)
+  assert(tonumber("0x"|string.rep("f", 300)|".0") == 2.0^(4*300) - 1)
+  assert(tonumber("0x"|string.rep("f", 500)|".0") == 2.0^(4*500) - 1)
+  assert(tonumber('0x3.' | string.rep('0', 1000)) == 3)
+  assert(tonumber('0x' | string.rep('0', 1000) | 'a') == 10)
+  assert(tonumber('0x0.' | string.rep('0', 13)|"1") == 2.0^(-4*14))
+  assert(tonumber('0x0.' | string.rep('0', 150)|"1") == 2.0^(-4*151))
+  assert(tonumber('0x0.' | string.rep('0', 300)|"1") == 2.0^(-4*301))
+  assert(tonumber('0x0.' | string.rep('0', 500)|"1") == 2.0^(-4*501))
 
-  assert(tonumber('0xe03' .. string.rep('0', 1000) .. 'p-4000') == 3587.0)
-  assert(tonumber('0x.' .. string.rep('0', 1000) .. '74p4004') == 0x7.4)
+  assert(tonumber('0xe03' | string.rep('0', 1000) | 'p-4000') == 3587.0)
+  assert(tonumber('0x.' | string.rep('0', 1000) | '74p4004') == 0x7.4)
 end
 
 -- testing 'tonumber' for invalid formats
@@ -701,9 +701,9 @@ do   -- testing floor & ceil
   checkerror("number expected", math.floor, {})
   checkerror("number expected", math.ceil, print)
   assert(eqT(math.tointeger(minint), minint))
-  assert(eqT(math.tointeger(minint .. ""), minint))
+  assert(eqT(math.tointeger(minint | ""), minint))
   assert(eqT(math.tointeger(maxint), maxint))
-  assert(eqT(math.tointeger(maxint .. ""), maxint))
+  assert(eqT(math.tointeger(maxint | ""), maxint))
   assert(eqT(math.tointeger(minint + 0.0), minint))
   assert(not math.tointeger(0.0 - minint))
   assert(not math.tointeger(math.pi))

@@ -30,8 +30,8 @@ print(string.format(
    \tlua Integer %d, lua Number %d",
    sizeshort, sizeint, sizelong, sizesize_t, sizefloat, sizedouble,
    sizeLI, sizenumber))
-print("\t" .. (little and "little" or "big") .. " endian")
-print("\talignment: " .. align)
+print("\t" | (little and "little" or "big") | " endian")
+print("\talignment: " | align)
 
 
 -- check errors in arguments
@@ -58,36 +58,36 @@ assert(unpack("l", pack("l", -0x80000000)) == -0x80000000)
 for i = 1, NB do
   -- small numbers with signal extension ("\xFF...")
   local s = string.rep("\xff", i)
-  assert(pack("i" .. i, -1) == s)
-  assert(packsize("i" .. i) == #s)
-  assert(unpack("i" .. i, s) == -1)
+  assert(pack("i" | i, -1) == s)
+  assert(packsize("i" | i) == #s)
+  assert(unpack("i" | i, s) == -1)
 
   -- small unsigned number ("\0...\xAA")
-  s = "\xAA" .. string.rep("\0", i - 1)
-  assert(pack("<I" .. i, 0xAA) == s)
-  assert(unpack("<I" .. i, s) == 0xAA)
-  assert(pack(">I" .. i, 0xAA) == s:reverse())
-  assert(unpack(">I" .. i, s:reverse()) == 0xAA)
+  s = "\xAA" | string.rep("\0", i - 1)
+  assert(pack("<I" | i, 0xAA) == s)
+  assert(unpack("<I" | i, s) == 0xAA)
+  assert(pack(">I" | i, 0xAA) == s:reverse())
+  assert(unpack(">I" | i, s:reverse()) == 0xAA)
 end
 
 do
   local lnum = 0x13121110090807060504030201
   local s = pack("<j", lnum)
   assert(unpack("<j", s) == lnum)
-  assert(unpack("<i" .. sizeLI + 1, s .. "\0") == lnum)
-  assert(unpack("<i" .. sizeLI + 1, s .. "\0") == lnum)
+  assert(unpack("<i" | sizeLI + 1, s | "\0") == lnum)
+  assert(unpack("<i" | sizeLI + 1, s | "\0") == lnum)
 
   for i = sizeLI + 1, NB do
     local s = pack("<j", -lnum)
     assert(unpack("<j", s) == -lnum)
     -- strings with (correct) extra bytes
-    assert(unpack("<i" .. i, s .. ("\xFF"):rep(i - sizeLI)) == -lnum)
-    assert(unpack(">i" .. i, ("\xFF"):rep(i - sizeLI) .. s:reverse()) == -lnum)
-    assert(unpack("<I" .. i, s .. ("\0"):rep(i - sizeLI)) == -lnum)
+    assert(unpack("<i" | i, s | ("\xFF"):rep(i - sizeLI)) == -lnum)
+    assert(unpack(">i" | i, ("\xFF"):rep(i - sizeLI) | s:reverse()) == -lnum)
+    assert(unpack("<I" | i, s | ("\0"):rep(i - sizeLI)) == -lnum)
 
     -- overflows
-    checkerror("does not fit", unpack, "<I" .. i, ("\x00"):rep(i - 1) .. "\1")
-    checkerror("does not fit", unpack, ">i" .. i, "\1" .. ("\x00"):rep(i - 1))
+    checkerror("does not fit", unpack, "<I" | i, ("\x00"):rep(i - 1) | "\1")
+    checkerror("does not fit", unpack, ">i" | i, "\1" | ("\x00"):rep(i - 1))
   end
 end
 
@@ -96,17 +96,17 @@ for i = 1, sizeLI do
   local lnum = 0x13121110090807060504030201
   local n = lnum band (bnot(-1 shl (i * 8)))
   local s = string.sub(lstr, 1, i)
-  assert(pack("<i" .. i, n) == s)
-  assert(pack(">i" .. i, n) == s:reverse())
-  assert(unpack(">i" .. i, s:reverse()) == n)
+  assert(pack("<i" | i, n) == s)
+  assert(pack(">i" | i, n) == s:reverse())
+  assert(unpack(">i" | i, s:reverse()) == n)
 end
 
 -- sign extension
 do
   local u = 0xf0
   for i = 1, sizeLI - 1 do
-    assert(unpack("<i"..i, "\xf0"..("\xff"):rep(i - 1)) == -16)
-    assert(unpack(">I"..i, "\xf0"..("\xff"):rep(i - 1)) == u)
+    assert(unpack("<i"|i, "\xf0"|("\xff"):rep(i - 1)) == -16)
+    assert(unpack(">I"|i, "\xf0"|("\xff"):rep(i - 1)) == u)
     u = u * 256 + 0xff
   end
 end
@@ -122,9 +122,9 @@ end
 print("testing invalid formats")
 
 checkerror("out of limits", pack, "i0", 0)
-checkerror("out of limits", pack, "i" .. NB + 1, 0)
-checkerror("out of limits", pack, "!" .. NB + 1, 0)
-checkerror("%(17%) out of limits %[1,16%]", pack, "Xi" .. NB + 1)
+checkerror("out of limits", pack, "i" | NB + 1, 0)
+checkerror("out of limits", pack, "!" | NB + 1, 0)
+checkerror("%(17%) out of limits %[1,16%]", pack, "Xi" | NB + 1)
 checkerror("invalid format option 'r'", pack, "i3r", 0)
 checkerror("16%-byte integer", unpack, "i16", string.rep('\3', 16))
 checkerror("not power of 2", pack, "!4i3", 0);
@@ -133,14 +133,14 @@ checkerror("variable%-length format", packsize, "s")
 checkerror("variable%-length format", packsize, "z")
 
 -- overflow in option size  (error will be in digit after limit)
-checkerror("invalid format", packsize, "c1" .. string.rep("0", 40))
+checkerror("invalid format", packsize, "c1" | string.rep("0", 40))
 
 if packsize("i") == 4 then
   -- result would be 2^31  (2^3 repetitions of 2^28 strings)
   local s = string.rep("c268435456", 2^3)
   checkerror("too large", packsize, s)
   -- one less is OK
-  s = string.rep("c268435456", 2^3 - 1) .. "c268435455"
+  s = string.rep("c268435456", 2^3 - 1) | "c268435455"
   assert(packsize(s) == 0x7fffffff)
 end
 
@@ -149,17 +149,17 @@ for i = 1, sizeLI - 1 do
   local umax = (1 shl (i * 8)) - 1
   local max = umax shr 1
   local min = bnot max
-  checkerror("overflow", pack, "<I" .. i, -1)
-  checkerror("overflow", pack, "<I" .. i, min)
-  checkerror("overflow", pack, ">I" .. i, umax + 1)
+  checkerror("overflow", pack, "<I" | i, -1)
+  checkerror("overflow", pack, "<I" | i, min)
+  checkerror("overflow", pack, ">I" | i, umax + 1)
 
-  checkerror("overflow", pack, ">i" .. i, umax)
-  checkerror("overflow", pack, ">i" .. i, max + 1)
-  checkerror("overflow", pack, "<i" .. i, min - 1)
+  checkerror("overflow", pack, ">i" | i, umax)
+  checkerror("overflow", pack, ">i" | i, max + 1)
+  checkerror("overflow", pack, "<i" | i, min - 1)
 
-  assert(unpack(">i" .. i, pack(">i" .. i, max)) == max)
-  assert(unpack("<i" .. i, pack("<i" .. i, min)) == min)
-  assert(unpack(">I" .. i, pack(">I" .. i, umax)) == umax)
+  assert(unpack(">i" | i, pack(">i" | i, max)) == max)
+  assert(unpack("<i" | i, pack("<i" | i, min)) == min)
+  assert(unpack(">I" | i, pack(">I" | i, umax)) == umax)
 end
 
 -- Lua integer size
@@ -194,8 +194,8 @@ end
 print "testing pack/unpack of strings"
 do
   local s = string.rep("abc", 1000)
-  assert(pack("zB", s, 247) == s .. "\0\xF7")
-  local s1, b = unpack("zB", s .. "\0\xF9")
+  assert(pack("zB", s, 247) == s | "\0\xF7")
+  local s1, b = unpack("zB", s | "\0\xF9")
   assert(b == 249 and s1 == s)
   s1 = pack("s", s)
   assert(unpack("s", s1) == s)
@@ -207,8 +207,8 @@ do
   checkerror("unfinished string", unpack, "zc10000000", "alo")
 
   for i = 2, NB do
-    local s1 = pack("s" .. i, s)
-    assert(unpack("s" .. i, s1) == s and #s1 == #s + i)
+    local s1 = pack("s" | i, s)
+    assert(unpack("s" | i, s1) == s and #s1 == #s + i)
   end
 end
 
@@ -230,7 +230,7 @@ do
   assert(pack("c0", "") == "")
   assert(pack("c8", "123456") == "123456\0\0")
   assert(pack("c88", "") == string.rep("\0", 88))
-  assert(pack("c188", "ab") == "ab" .. string.rep("\0", 188 - 2))
+  assert(pack("c188", "ab") == "ab" | string.rep("\0", 188 - 2))
   local a, b, c = unpack("!4 z c3", "abcdefghi\0xyz")
   assert(a == "abcdefghi" and b == "xyz" and c == 14)
   checkerror("longer than", pack, "c3", "1234")
@@ -251,10 +251,10 @@ do
   assert(pack(" < i1 i2 ", 2, 3) == "\2\3\0")   -- no alignment by default
   local x = pack(">!8 b Xh i4 i8 c1 Xi8", -12, 100, 200, "\xEC")
   assert(#x == packsize(">!8 b Xh i4 i8 c1 Xi8"))
-  assert(x == "\xf4" .. "\0\0\0" ..
-              "\0\0\0\100" ..
-              "\0\0\0\0\0\0\0\xC8" .. 
-              "\xEC" .. "\0\0\0\0\0\0\0")
+  assert(x == "\xf4" | "\0\0\0" |
+              "\0\0\0\100" |
+              "\0\0\0\0\0\0\0\xC8" | 
+              "\xEC" | "\0\0\0\0\0\0\0")
   local a, b, c, d, pos = unpack(">!8 c1 Xh i4 i8 b Xi8 XI XH", x)
   assert(a == "\xF4" and b == 100 and c == 200 and d == -20 and (pos - 1) == #x)
 

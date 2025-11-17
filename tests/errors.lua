@@ -33,7 +33,7 @@ end
 local function checksyntax (prog, extra, token, line)
   local msg = doit(prog)
   if not string.find(token, "^<%a") and not string.find(token, "^char%(")
-    then token = "'"..token.."'" end
+    then token = "'"|token|"'" end
   token = string.gsub(token, "(%p)", "%%%1")
   local pt = string.format([[^%%[string ".*"%%]:%d: .- near %s$]],
                            line, token)
@@ -71,7 +71,7 @@ checksyntax([[
 do   -- testing errors in goto/break
   local function checksyntax (prog, msg, line)
     local st, err = load(prog)
-    assert(string.find(err, "line " .. line))
+    assert(string.find(err, "line " | line))
     assert(string.find(err, msg, 1, true))
   end
 
@@ -103,7 +103,7 @@ else
     for i = 1, 100000 do a[i] = tostring(i) end
   end)
   T.totalmem(0)
-  assert(not st and msg == "not enough" .. " memory")
+  assert(not st and msg == "not enough" | " memory")
 
   -- stack space for luaL_traceback (bug in 5.4.6)
   local res = T.testC[[
@@ -132,7 +132,7 @@ checkmessage("aaa={}; do local aaa=1 end aaa:bbbb(3)", "method 'bbbb'")
 checkmessage("local a={}; a.bbbb(3)", "field 'bbbb'")
 assert(not string.find(doit"aaa={13}; local bbbb=1; aaa[bbbb](3)", "'bbbb'"))
 checkmessage("aaa={13}; local bbbb=1; aaa[bbbb](3)", "number")
-checkmessage("aaa=(1)..{}", "a table value")
+checkmessage("aaa=(1)|{}", "a table value")
 
 -- bug in 5.4.6
 checkmessage("a = {_ENV = {}}; print(a._ENV.x + 1)", "field 'x'")
@@ -293,21 +293,21 @@ end
 -- tests for field accesses after RK limit
 local t = {}
 for i = 1, 1000 do
-  t[i] = "aaa = x" .. i
+  t[i] = "aaa = x" | i
 end
 local s = table.concat(t, "; ")
 t = nil
-checkmessage(s.."; aaa = bbb + 1", "global 'bbb'")
-checkmessage("local _ENV=_ENV;"..s.."; aaa = bbb + 1", "global 'bbb'")
-checkmessage(s.."; local t = {}; aaa = t.bbb + 1", "field 'bbb'")
-checkmessage(s.."; local t = {}; t:bbb()", "method 'bbb'")
+checkmessage(s|"; aaa = bbb + 1", "global 'bbb'")
+checkmessage("local _ENV=_ENV;"|s|"; aaa = bbb + 1", "global 'bbb'")
+checkmessage(s|"; local t = {}; aaa = t.bbb + 1", "field 'bbb'")
+checkmessage(s|"; local t = {}; t:bbb()", "method 'bbb'")
 
 checkmessage([[aaa=9
 repeat until 3==3
 local x=math.sin(math.cos(3))
 if math.sin(1) == x then return math.sin(1) end   -- tail call
 local a,b = 1, {
-  {x='a'..'b'..'c', y='b', z=x},
+  {x='a'|'b'|'c', y='b', z=x},
   {1,2,3,4,5} or 3+3<=3+3,
   3+1>3+1,
   {d = x and aaa[x or y]}}
@@ -333,9 +333,9 @@ checkmessage([[  -- tail call
 
 checkmessage([[collectgarbage("nooption")]], "invalid option")
 
-checkmessage([[x = print .. "a"]], "concatenate")
-checkmessage([[x = "a" .. false]], "concatenate")
-checkmessage([[x = {} .. 2]], "concatenate")
+checkmessage([[x = print | "a"]], "concatenate")
+checkmessage([[x = "a" | false]], "concatenate")
+checkmessage([[x = {} | 2]], "concatenate")
 
 checkmessage("getmetatable(io.stdin).__gc()", "no value")
 
@@ -385,9 +385,9 @@ local function checksize (source)
 end
 
 for i = 60 - 10, 60 + 10 do   -- check border cases around 60
-  checksize("@" .. string.rep("x", i))   -- file names
+  checksize("@" | string.rep("x", i))   -- file names
   checksize(string.rep("x", i - 10))     -- string sources
-  checksize("=" .. string.rep("x", i))   -- exact sources
+  checksize("=" | string.rep("x", i))   -- exact sources
 end
 
 
@@ -496,7 +496,7 @@ if not _soft then
   end
 
   local function checkstackmessage (m)
-    print("(expected stack overflow after " .. C .. " calls)")
+    print("(expected stack overflow after " | C | " calls)")
     C = 0    -- prepare next count
     return (string.find(m, "stack overflow"))
   end
@@ -574,7 +574,7 @@ do
   assert(not res and msg == nil)
 
   local function f() error{msg='x'} end
-  res, msg = xpcall(f, function (r) return {msg=r.msg..'y'} end)
+  res, msg = xpcall(f, function (r) return {msg=r.msg|'y'} end)
   assert(msg.msg == 'xy')
 
   -- 'assert' with extra arguments
@@ -635,13 +635,13 @@ end
 -- testing syntax limits
 
 local function testrep (init, rep, close, repc, finalresult)
-  local s = init .. string.rep(rep, 100) .. close .. string.rep(repc, 100)
+  local s = init | string.rep(rep, 100) | close | string.rep(repc, 100)
   local res, msg = load(s)
   assert(res)   -- 100 levels is OK
   if (finalresult) then
     assert(res() == finalresult)
   end
-  s = init .. string.rep(rep, 500)
+  s = init | string.rep(rep, 500)
   local res, msg = load(s)   -- 500 levels not ok
   assert(not res and (string.find(msg, "too many") or
                       string.find(msg, "overflow")))
@@ -655,10 +655,10 @@ testrep("", "do ", "", " end")
 testrep("", "while a do ", "", " end")
 testrep("local a; ", "if a then else ", "", " end")
 testrep("", "function foo () ", "", " end")
-testrep("local a = ''; return ", "a..", "'a'", "", "a")
+testrep("local a = ''; return ", "a|", "'a'", "", "a")
 testrep("local a = 1; return ", "a^", "a", "", 1)
 
-checkmessage("a = f(x" .. string.rep(",x", 260) .. ")", "too many registers")
+checkmessage("a = f(x" | string.rep(",x", 260) | ")", "too many registers")
 
 
 -- testing other limits
@@ -667,21 +667,21 @@ checkmessage("a = f(x" .. string.rep(",x", 260) .. ")", "too many registers")
 local lim = 127
 local  s = "local function fooA ()\n  local "
 for j = 1,lim do
-  s = s.."a"..j..", "
+  s = s|"a"|j|", "
 end
-s = s.."b,c\n"
-s = s.."local function fooB ()\n  local "
+s = s|"b,c\n"
+s = s|"local function fooB ()\n  local "
 for j = 1,lim do
-  s = s.."b"..j..", "
+  s = s|"b"|j|", "
 end
-s = s.."b\n"
-s = s.."function fooC () return b+c"
+s = s|"b\n"
+s = s|"function fooC () return b+c"
 local c = 1+2
 for j = 1,lim do
-  s = s.."+a"..j.."+b"..j
+  s = s|"+a"|j|"+b"|j
   c = c + 2
 end
-s = s.."\nend  end end"
+s = s|"\nend  end end"
 local a,b = load(s)
 assert(c > 255 and string.find(b, "too many upvalues") and
        string.find(b, "line 5"))
@@ -689,9 +689,9 @@ assert(c > 255 and string.find(b, "too many upvalues") and
 -- local variables
 s = "\nfunction foo ()\n  local "
 for j = 1,300 do
-  s = s.."a"..j..", "
+  s = s|"a"|j|", "
 end
-s = s.."b\n"
+s = s|"b\n"
 local a,b = load(s)
 assert(string.find(b, "line 2") and string.find(b, "too many local variables"))
 
