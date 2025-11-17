@@ -239,9 +239,9 @@ local function test (a, b, c)
   assert((1 >= Op(1)) and not(1 >= Op(2)) and (Op(2) >= 1))
   assert((Op('a')>=Op('a')) and not(Op('a')>=Op('b')) and (Op('b')>=Op('a')))
   assert(('a' >= Op('a')) and not(Op('a') >= 'b') and (Op('b') >= Op('a')))
-  assert(Op(1) == Op(1) and Op(1) ~= Op(2))
-  assert(Op('a') == Op('a') and Op('a') ~= Op('b'))
-  assert(a == a and a ~= b)
+  assert(Op(1) == Op(1) and Op(1) <> Op(2))
+  assert(Op('a') == Op('a') and Op('a') <> Op('b'))
+  assert(a == a and a <> b)
   assert(Op(3) == c)
 end
 
@@ -265,7 +265,7 @@ t.__lt = function (a,b)
     if not b[k] then return false end
     b[k] = undef
   end
-  return next(b) ~= nil
+  return next(b) <> nil
 end
 
 t.__le = function (a,b)
@@ -298,7 +298,7 @@ assert(not rawequal(s, Set{3,5,1}))
 assert(rawequal(s, s))
 assert(Set{1,3,5,1} == rawSet{3,5,1})
 assert(rawSet{1,3,5,1} == Set{3,5,1})
-assert(Set{1,3,5} ~= Set{3,5,1,6})
+assert(Set{1,3,5} <> Set{3,5,1,6})
 
 -- '__eq' is not used for table accesses
 t[Set{1,3,5}] = 1
@@ -310,7 +310,7 @@ do   -- test invalidating flags
   local a = setmetatable({10}, mt)
   local b = setmetatable({10}, mt)
   mt.__eq = nil
-  assert(a ~= b)   -- no metamethod
+  assert(a <> b)   -- no metamethod
   mt.__eq = function (x,y) return x[1] == y[1] end
   assert(a == b)   -- must use metamethod now
 end
@@ -323,7 +323,7 @@ else
   local u1 = T.newuserdata(0, 1)
   local u2 = T.newuserdata(0, 1)
   local u3 = T.newuserdata(0, 1)
-  assert(u1 ~= u2 and u1 ~= u3)
+  assert(u1 <> u2 and u1 <> u3)
   debug.setuservalue(u1, 1);
   debug.setuservalue(u2, 2);
   debug.setuservalue(u3, 1);
@@ -333,9 +333,9 @@ else
   debug.setmetatable(u2, {__eq = function (a, b)
     return true
   end})
-  assert(u1 == u3 and u3 == u1 and u1 ~= u2)
+  assert(u1 == u3 and u3 == u1 and u1 <> u2)
   assert(u2 == u1 and u2 == u3 and u3 == u2)
-  assert(u2 ~= {})   -- different types cannot be equal
+  assert(u2 <> {})   -- different types cannot be equal
   assert(rawequal(u1, u1) and not rawequal(u1, u3))
 
   local mirror = {}

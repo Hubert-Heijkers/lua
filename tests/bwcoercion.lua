@@ -20,7 +20,7 @@ end
 -- have been called if not for this string metamethod, so try to
 -- call it.
 local function trymt (x, y, mtname)
-  if type(y) ~= "string" then    -- avoid recalling original metamethod
+  if type(y) <> "string" then    -- avoid recalling original metamethod
     local mt = getmetatable(y)
     local mm = mt and rawget(mt, mtname)
     if mm then

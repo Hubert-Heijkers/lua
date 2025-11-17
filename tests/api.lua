@@ -373,23 +373,23 @@ assert(to("tonumber", 1, 20) == 0)
 assert(to("topointer", 10) == null)
 assert(to("topointer", true) == null)
 assert(to("topointer", nil) == null)
-assert(to("topointer", "abc") ~= null)
+assert(to("topointer", "abc") <> null)
 assert(to("topointer", string.rep("x", 10)) ==
        to("topointer", string.rep("x", 10)))    -- short strings
 do    -- long strings
   local s1 = string.rep("x", 300)
   local s2 = string.rep("x", 300)
-  assert(to("topointer", s1) ~= to("topointer", s2))
+  assert(to("topointer", s1) <> to("topointer", s2))
 end
-assert(to("topointer", T.pushuserdata(20)) ~= null)
-assert(to("topointer", io.read) ~= null)           -- light C function
-assert(to("topointer", hfunc) ~= null)        -- "heavy" C function
-assert(to("topointer", function () end) ~= null)   -- Lua function
-assert(to("topointer", io.stdin) ~= null)   -- full userdata
+assert(to("topointer", T.pushuserdata(20)) <> null)
+assert(to("topointer", io.read) <> null)           -- light C function
+assert(to("topointer", hfunc) <> null)        -- "heavy" C function
+assert(to("topointer", function () end) <> null)   -- Lua function
+assert(to("topointer", io.stdin) <> null)   -- full userdata
 assert(to("func2num", 20) == 0)
 assert(to("func2num", T.pushuserdata(10)) == 0)
-assert(to("func2num", io.read) ~= 0)     -- light C function
-assert(to("func2num", hfunc) ~= 0)  -- "heavy" C function (with upvalue)
+assert(to("func2num", io.read) <> 0)     -- light C function
+assert(to("func2num", hfunc) <> 0)  -- "heavy" C function (with upvalue)
 a = to("tocfunction", math.deg)
 assert(a(3) == math.deg(3) and a == math.deg)
 
@@ -814,7 +814,7 @@ F = function (x)
   assert(load("table.insert({}, {})"))()   -- create more garbage
   assert(not collectgarbage())    -- GC during GC (no op)
   local dummy = {}    -- create more garbage during GC
-  if A ~= nil then
+  if A <> nil then
     assert(type(A) == "userdata")
     assert(T.udataval(A) == B)
     debug.getmetatable(A)    -- just access it
@@ -956,11 +956,11 @@ do
     return u
   end
   assert(f(10) == f(10))
-  assert(f(10) ~= f(11))
+  assert(f(10) <> f(11))
   assert(T.testC("compare EQ 2 3; return 1", f(10), f(10)))
   assert(not T.testC("compare EQ 2 3; return 1", f(10), f(20)))
   t.__eq = nil
-  assert(f(10) ~= f(10))
+  assert(f(10) <> f(10))
 end
 
 print'+'
@@ -1226,7 +1226,7 @@ local function testbytes (s, f)
     a, b = T.testC("pcall 0 1 0; pushstatus; return 2", f)
     T.totalmem(0)  -- remove limit
     if a and b == "OK" then break end       -- stop when no more errors
-    if b ~= "OK" and b ~= MEMERRMSG then    -- not a memory error?
+    if b <> "OK" and b <> MEMERRMSG then    -- not a memory error?
       error(a, 0)   -- propagate it
     end
     M = M + 7   -- increase memory limit
@@ -1250,7 +1250,7 @@ local function testalloc (s, f)
     a, b = T.testC("pcall 0 1 0; pushstatus; return 2", f)
     T.alloccount()  -- remove limit
     if a and b == "OK" then break end       -- stop when no more errors
-    if b ~= "OK" and b ~= MEMERRMSG then    -- not a memory error?
+    if b <> "OK" and b <> MEMERRMSG then    -- not a memory error?
       error(a, 0)   -- propagate it
     end
     M = M + 1   -- increase allocation limit
@@ -1500,7 +1500,7 @@ assert(type(mt_xuxu) == "table" and res and top == 3)
 local d, res, top = T.testC("newmetatable xuxu; gettop; return 3")
 assert(mt_xuxu == d and not res and top == 3)
 d, res, top = T.testC("newmetatable xuxu1; gettop; return 3")
-assert(mt_xuxu ~= d and res and top == 3)
+assert(mt_xuxu <> d and res and top == 3)
 
 x = T.newuserdata(0);
 y = T.newuserdata(0);

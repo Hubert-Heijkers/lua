@@ -109,7 +109,7 @@ local function filter (p, g)
     while 1 do
       local n = g()
       if n == nil then return end
-      if math.fmod(n, p) ~= 0 then coroutine.yield(n) end
+      if math.fmod(n, p) <> 0 then coroutine.yield(n) end
     end
   end)
 end
@@ -554,7 +554,7 @@ else
     B = fact("B", 7)
   end)
 
-  while A==0 or B==0 do    -- A ~= 0 when 'x' finishes (similar for 'B','y')
+  while A==0 or B==0 do    -- A <> 0 when 'x' finishes (similar for 'B','y')
     if A==0 then turn = "A"; assert(T.resume(x)) end
     if B==0 then turn = "B"; assert(T.resume(y)) end
 
@@ -635,7 +635,7 @@ else
 
     assert(coroutine.resume(c, 1, 2, 3))   -- start coroutine
     local n,v = debug.getlocal(c, 0, 1)    -- check its local
-    assert(n == "a" and v == 1 and debug.getlocal(c, 0, 2) ~= "b")
+    assert(n == "a" and v == 1 and debug.getlocal(c, 0, 2) <> "b")
     assert(debug.setlocal(c, 0, 1, 10))     -- test 'setlocal'
     local t = debug.getinfo(c, 0)        -- test 'getinfo'
     assert(t.currentline == t.linedefined + 2)
@@ -858,8 +858,8 @@ assert(run(function () if (a>=b) then return '>=' else return '<' end end,
        {"le", "sub"}) == "<")
 assert(run(function () if (a<=b) then return '<=' else return '>' end end,
        {"le", "sub"}) == "<=")
-assert(run(function () if (a==b) then return '==' else return '~=' end end,
-       {"eq"}) == "~=")
+assert(run(function () if (a==b) then return '==' else return '<>' end end,
+       {"eq"}) == "<>")
 
 assert(run(function () return a band b + a end, {"add", "band"}) == 2)
 
@@ -936,7 +936,7 @@ do   -- a few more tests for comparison operators
     local res
     repeat
       res = co()
-    until res ~= 10
+    until res <> 10
     return res
   end
   

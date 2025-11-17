@@ -433,7 +433,7 @@ do   -- test reuse of original string in gsub
                           end)
   assert(count == 100)
   -- no reuse in this case
-  assert(r == s and string.format("%p", s) ~= string.format("%p", r))
+  assert(r == s and string.format("%p", s) <> string.format("%p", r))
 end
 
 print('OK')

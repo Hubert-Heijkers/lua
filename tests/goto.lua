@@ -191,8 +191,8 @@ end
 -- 'b' and 'c' are shared among some of them
 for i = 2, 6 do
   -- only a[1] uses external 'b'/'b'
-  assert(debug.upvalueid(a[1], 2) ~= debug.upvalueid(a[i], 2))
-  assert(debug.upvalueid(a[1], 3) ~= debug.upvalueid(a[i], 3))
+  assert(debug.upvalueid(a[1], 2) <> debug.upvalueid(a[i], 2))
+  assert(debug.upvalueid(a[1], 3) <> debug.upvalueid(a[i], 3))
 end
 
 for i = 3, 5, 2 do
@@ -200,8 +200,8 @@ for i = 3, 5, 2 do
   assert(debug.upvalueid(a[i], 2) == debug.upvalueid(a[i - 1], 2))
   assert(debug.upvalueid(a[i], 3) == debug.upvalueid(a[i - 1], 3))
   -- but not with next ones
-  assert(debug.upvalueid(a[i], 2) ~= debug.upvalueid(a[i + 1], 2))
-  assert(debug.upvalueid(a[i], 3) ~= debug.upvalueid(a[i + 1], 3))
+  assert(debug.upvalueid(a[i], 2) <> debug.upvalueid(a[i + 1], 2))
+  assert(debug.upvalueid(a[i], 3) <> debug.upvalueid(a[i + 1], 3))
 end
 
 -- only external 'd' is shared

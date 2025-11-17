@@ -55,7 +55,7 @@ end
 
 local function checkout (s)
   local t = getoutput()
-  if s ~= t then print(string.format("'%s' - '%s'\n", s, t)) end
+  if s <> t then print(string.format("'%s' - '%s'\n", s, t)) end
   assert(s == t)
   return t
 end

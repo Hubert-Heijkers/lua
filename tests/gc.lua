@@ -287,7 +287,7 @@ for i=4,lim do a[i] = {} end
 for i=1,lim do a[{}] = i end
 for i=1,lim do local t={}; a[t]=t end
 collectgarbage()
-assert(next(a) ~= nil)
+assert(next(a) <> nil)
 local i = 0
 for k,v in pairs(a) do
   assert((k == 1 and v == x) or
@@ -426,7 +426,7 @@ else
     end
   end
   a1, u = nil
-  assert(next(a) ~= nil)
+  assert(next(a) <> nil)
   collectgarbage()
   assert(s==11)
   collectgarbage()

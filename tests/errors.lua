@@ -524,7 +524,7 @@ if not _soft then
     if curr then table.insert(stack, tonumber(curr)) end
   end
   local i=1
-  while stack[i] ~= l1 do
+  while stack[i] <> l1 do
     assert(stack[i] == l)
     i = i+1
   end

@@ -381,8 +381,8 @@ assert((nil and 10) == nil)
 assert((false and 10) == false)
 assert((true or 10) == true)
 assert((false or 10) == 10)
-assert(false ~= nil)
-assert(nil ~= false)
+assert(false <> nil)
+assert(nil <> false)
 assert(not nil == true)
 assert(not not nil == false)
 assert(not not 1 == true)
@@ -395,7 +395,7 @@ assert(not {} == false)
 assert(not 0.5 == false)
 assert(not "x" == false)
 
-assert({} ~= {})
+assert({} <> {})
 print('+')
 
 a = {}
@@ -453,7 +453,7 @@ end
 local maxint = math.maxinteger
 
 -- trim (if needed) to fit in a float
-while maxint ~= (maxint + 0.0) or (maxint - 1) ~= (maxint - 1.0) do
+while maxint <> (maxint + 0.0) or (maxint - 1) <> (maxint - 1.0) do
   maxint = maxint // 2
 end
 

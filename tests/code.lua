@@ -389,9 +389,9 @@ end,
   'RETURN0')
 
 
--- x == nil , x ~= nil
--- checkequal(function (b) if (a==nil) then a=1 end; if a~=nil then a=1 end end,
---            function () if (a==9) then a=1 end; if a~=9 then a=1 end end)
+-- x == nil , x <> nil
+-- checkequal(function (b) if (a==nil) then a=1 end; if a<>nil then a=1 end end,
+--            function () if (a==9) then a=1 end; if a<>9 then a=1 end end)
 
 -- check(function () if a==nil then a='a' end end,
 -- 'GETTABUP', 'EQ', 'JMP', 'SETTABUP', 'RETURN')

@@ -165,13 +165,13 @@ do  -- tests for '%p' format
   assert(string.format("%p", 4) == null)
   assert(string.format("%p", true) == null)
   assert(string.format("%p", nil) == null)
-  assert(string.format("%p", {}) ~= null)
-  assert(string.format("%p", print) ~= null)
-  assert(string.format("%p", coroutine.running()) ~= null)
-  assert(string.format("%p", io.stdin) ~= null)
+  assert(string.format("%p", {}) <> null)
+  assert(string.format("%p", print) <> null)
+  assert(string.format("%p", coroutine.running()) <> null)
+  assert(string.format("%p", io.stdin) <> null)
   assert(string.format("%p", io.stdin) == string.format("%p", io.stdin))
   assert(string.format("%p", print) == string.format("%p", print))
-  assert(string.format("%p", print) ~= string.format("%p", assert))
+  assert(string.format("%p", print) <> string.format("%p", assert))
 
   assert(#string.format("%90p", {}) == 90)
   assert(#string.format("%-60p", {}) == 60)
@@ -180,7 +180,7 @@ do  -- tests for '%p' format
 
   do
     local t1 = {}; local t2 = {}
-    assert(string.format("%p", t1) ~= string.format("%p", t2))
+    assert(string.format("%p", t1) <> string.format("%p", t2))
   end
 
   do     -- short strings are internalized
@@ -191,7 +191,7 @@ do  -- tests for '%p' format
 
   do     -- long strings aren't internalized
     local s1 = string.rep("a", 300); local s2 = string.rep("a", 300)
-    assert(string.format("%p", s1) ~= string.format("%p", s2))
+    assert(string.format("%p", s1) <> string.format("%p", s2))
   end
 end
 

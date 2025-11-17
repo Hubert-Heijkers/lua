@@ -336,7 +336,7 @@ debug.sethook(function (e,l)
   local f, m, c = debug.gethook()
   assert(m == 'crl' and c == 0)
   if e == "line" then
-    if glob ~= oldglob then
+    if glob <> oldglob then
       L = l-1   -- get the first line where "glob" has changed
       oldglob = glob
     end

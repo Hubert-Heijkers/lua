@@ -149,7 +149,7 @@ function bit.xxor (x, y, z, ...)
 end
 
 function bit.btest (...)
-  return bit.xand(...) ~= 0
+  return bit.xand(...) <> 0
 end
 
 function bit.lshift (a, b)
@@ -281,10 +281,10 @@ for _, b in pairs(c) do
   assert(bit32.xand(b) == b)
   assert(bit32.xand(b, b) == b)
   assert(bit32.xand(b, b, b, b) == b)
-  assert(bit32.btest(b, b) == (b ~= 0))
+  assert(bit32.btest(b, b) == (b <> 0))
   assert(bit32.xand(b, b, b) == b)
   assert(bit32.xand(b, b, b, bnot b) == 0)
-  assert(bit32.btest(b, b, b) == (b ~= 0))
+  assert(bit32.btest(b, b, b) == (b <> 0))
   assert(bit32.xand(b, bit32.xnot(b)) == 0)
   assert(bit32.xor(b, bit32.xnot(b)) == bit32.xnot(0))
   assert(bit32.xor(b) == b)
@@ -296,7 +296,7 @@ for _, b in pairs(c) do
   assert(bit32.xxor(b, b, b) == b)
   assert(bit32.xxor(b, b, b, b) == 0)
   assert(bit32.xxor(b, 0) == b)
-  assert(bit32.xnot(b) ~= b)
+  assert(bit32.xnot(b) <> b)
   assert(bit32.xnot(bit32.xnot(b)) == b)
   assert(bit32.xnot(b) == (1 shl 32) - 1 - b)
   assert(bit32.lrotate(b, 32) == b)

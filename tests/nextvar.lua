@@ -12,7 +12,7 @@ end
 local function check (t, na, nh)
   if not T then return end
   local a, h = T.querytab(t)
-  if a ~= na or h ~= nh then
+  if a <> na or h <> nh then
     print(na, nh, a, h)
     assert(nil)
   end
@@ -243,7 +243,7 @@ local function find (name)
   while 1 do
     n,v = next(_G, n)
     if not n then return nofind end
-    assert(_G[n] ~= undef)
+    assert(_G[n] <> undef)
     if n == name then return v end
   end
 end
@@ -277,7 +277,7 @@ print('+')
 
 a = {}
 for i=0,10000 do
-  if math.fmod(i,10) ~= 0 then
+  if math.fmod(i,10) <> 0 then
     a['x'|i] = i
   end
 end
@@ -294,7 +294,7 @@ do   -- clear global table
   local a = {}
   for n,v in pairs(_G) do a[n]=v end
   for n,v in pairs(a) do
-    if not package.loaded[n] and type(v) ~= "function" and
+    if not package.loaded[n] and type(v) <> "function" and
        not string.find(n, "^[%u_]") then
       _G[n] = undef
     end
@@ -425,7 +425,7 @@ local function test (a)
   table.insert(a, 1, -1); table.insert(a, 40);
   table.insert(a, #a+1, 50)
   table.insert(a, 2, -2)
-  assert(a[2] ~= undef)
+  assert(a[2] <> undef)
   assert(a["2"] == undef)
   assert(not pcall(table.insert, a, 0, 20));
   assert(not pcall(table.insert, a, #a + 2, 20));
@@ -485,7 +485,7 @@ do   -- testing table library with metamethods
     for i = 1, 10 do
       table.insert(proxy, 1, i)
     end
-    assert(#proxy == 10 and #t == 10 and proxy[1] ~= undef)
+    assert(#proxy == 10 and #t == 10 and proxy[1] <> undef)
     for i = 1, 10 do
       assert(t[i] == 11 - i)
     end

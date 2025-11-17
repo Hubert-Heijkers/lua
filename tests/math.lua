@@ -23,7 +23,7 @@ do
 end
 
 local function isNaN (x)
-  return (x ~= x)
+  return (x <> x)
 end
 
 assert(isNaN(0/0))
@@ -172,7 +172,7 @@ do
   for i = -3, 3 do    -- variables avoid constant folding
       for j = -3, 3 do
         -- domain errors (0^(-n)) are not portable
-        if not _port or i ~= 0 or j > 0 then
+        if not _port or i <> 0 or j > 0 then
           assert(eq(i^j, 1 / i^(-j)))
        end
     end
@@ -183,14 +183,14 @@ end
 if floatbits < intbits then
   assert(2.0^floatbits == (1 shl floatbits))
   assert(2.0^floatbits - 1.0 == (1 shl floatbits) - 1.0)
-  assert(2.0^floatbits - 1.0 ~= (1 shl floatbits))
+  assert(2.0^floatbits - 1.0 <> (1 shl floatbits))
   -- float is rounded, int is not
-  assert(2.0^floatbits + 1.0 ~= (1 shl floatbits) + 1)
+  assert(2.0^floatbits + 1.0 <> (1 shl floatbits) + 1)
 else   -- floats can express all integers with full accuracy
   assert(maxint == maxint + 0.0)
   assert(maxint - 1 == maxint - 1.0)
   assert(minint + 1 == minint + 1.0)
-  assert(maxint ~= maxint - 1.0)
+  assert(maxint <> maxint - 1.0)
 end
 assert(maxint + 0.0 == 2.0^(intbits - 1) - 1.0)
 assert(minint + 0.0 == minint)
@@ -313,7 +313,7 @@ if floatbits < intbits then
   local mf = maxint - (1 shl (floatbits - intbits)) + 1
   assert(f2i(mf + 0.0) == mf)  -- OK up to here
   mf = mf + 1
-  assert(f2i(mf + 0.0) ~= mf)   -- no more representable
+  assert(f2i(mf + 0.0) <> mf)   -- no more representable
 else
   -- conversion tests when float can represent all integers
   assert(maxint + 1.0 > maxint)
@@ -345,7 +345,7 @@ do
   local function incd (n)
     local s = string.format("%d", n)
     s = string.gsub(s, "%d$", function (d)
-          assert(d ~= '9')
+          assert(d <> '9')
           return string.char(string.byte(d) + 1)
         end)
     return s
@@ -580,7 +580,7 @@ end
 -- basic consistency between integer modulo and float modulo
 for i = -10, 10 do
   for j = -10, 10 do
-    if j ~= 0 then
+    if j <> 0 then
       assert((i + 0.0) % j == i % j)
     end
   end
@@ -588,7 +588,7 @@ end
 
 for i = 0, 10 do
   for j = -10, 10 do
-    if j ~= 0 then
+    if j <> 0 then
       assert((2^i) % j == (1 shl i) % j)
     end
   end
@@ -724,7 +724,7 @@ end
 -- testing fmod for integers
 for i = -6, 6 do
   for j = -6, 6 do
-    if j ~= 0 then
+    if j <> 0 then
       local mi = math.fmod(i, j)
       local mf = math.fmod(i + 0.0, j)
       assert(mi == mf)
@@ -781,14 +781,14 @@ do
   assert(mz == z)
   assert(1/mz < 0 and 0 < 1/z)
   local NaN <const> = inf - inf
-  assert(NaN ~= NaN)
+  assert(NaN <> NaN)
   assert(not (NaN < NaN))
   assert(not (NaN <= NaN))
   assert(not (NaN > NaN))
   assert(not (NaN >= NaN))
   assert(not (0 < NaN) and not (NaN < 0))
   local NaN1 <const> = 0/0
-  assert(NaN ~= NaN1 and not (NaN <= NaN1) and not (NaN1 <= NaN))
+  assert(NaN <> NaN1 and not (NaN <= NaN1) and not (NaN1 <= NaN))
   local a = {}
   assert(not pcall(rawset, a, NaN, 1))
   assert(a[NaN] == undef)
@@ -798,7 +798,7 @@ do
   -- strings with same binary representation as 0.0 (might create problems
   -- for constant manipulation in the pre-compiler)
   local a1, a2, a3, a4, a5 = 0, 0, "\0\0\0\0\0\0\0\0", 0, "\0\0\0\0\0\0\0\0"
-  assert(a1 == a2 and a2 == a4 and a1 ~= a3)
+  assert(a1 == a2 and a2 == a4 and a1 <> a3)
   assert(a3 == a5)
 end
 

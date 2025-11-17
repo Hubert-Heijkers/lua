@@ -68,7 +68,7 @@ do   -- testing operators with diffent kinds of constants
   local operand = {3, 100, 5.0, -10, -5.0, 10000, -10000}
   local operator = {"+", "-", "*", "/", "//", "%", "^",
                     "band", "bor", "^", "shl", "shr",
-                    "==", "~=", "<", ">", "<=", ">=",}
+                    "==", "<>", "<", ">", "<=", ">=",}
   for _, op in ipairs(operator) do
     local f = assert(load(string.format([[return function (x,y)
                 return x %s y
@@ -131,7 +131,7 @@ end
 
 
 local function f (i)
-  if type(i) ~= 'number' then return i,'jojo'; end;
+  if type(i) <> 'number' then return i,'jojo'; end;
   if i > 0 then return i, f(i-1); end;
 end
 
@@ -282,7 +282,7 @@ end;
 assert(f(2,1) == true and g(2,1) == 1 and h(2,1) == 1)
 assert(f(1,2,'a') == 'a' and g(1,2,'a') == 1 and h(1,2,'a') == 1)
 assert(f(1,2,'a')
-~=          -- force SETLINE before nil
+<>          -- force SETLINE before nil
 nil, "")
 assert(f(1,2,'a') == 'a' and g(1,2,'a') == 1 and h(1,2,'a') == 1)
 assert(f(1,2,nil,1,'x') == 'x' and g(1,2,nil,1,'x') == 1 and
@@ -307,7 +307,7 @@ local function F (a)
   return a,2,3
 end
 
-a,b = F(1)~=nil; assert(a == true and b == nil);
+a,b = F(1)<>nil; assert(a == true and b == nil);
 a,b = F(nil)==nil; assert(a == true and b == nil)
 
 ----------------------------------------------------------------

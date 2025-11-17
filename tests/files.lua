@@ -77,7 +77,7 @@ assert(not loadfile(file))
 checkerr("", dofile, file)
 assert(not io.open(file))
 io.output(file)
-assert(io.output() ~= io.stdout)
+assert(io.output() <> io.stdout)
 
 if not _port then   -- invalid seek
   local status, msg, code = io.stdin:seek("set", 1000)
@@ -623,7 +623,7 @@ assert(io.output(assert(io.open(otherfile, 'wb')))
 
 local filehandle = assert(io.open(file, 'r+'))
 local otherfilehandle = assert(io.open(otherfile, 'rb'))
-assert(filehandle ~= otherfilehandle)
+assert(filehandle <> otherfilehandle)
 assert(type(filehandle) == "userdata")
 assert(filehandle:read('l') == "qualquer coisa")
 io.input(otherfilehandle)
