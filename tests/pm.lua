@@ -236,7 +236,7 @@ assert(not isbalanced("(9 ((8) 7) a b (\0 c) a"))
 assert(string.gsub("alo 'oi' alo", "%b''", '"') == 'alo " alo')
 
 
-local t = {"apple", "orange", "lime"; n=0}
+local t = {"apple", "orange", "lime", n=0}
 assert(string.gsub("x and x and x", "x", function () t.n=t.n+1; return t[t.n] end)
         == "apple and orange and lime")
 

@@ -868,11 +868,11 @@ local function f (t)
   return info.name
 end
 setmetatable(a, {
-  __index = f; __add = f; __div = f; __mod = f; __concat = f; __pow = f;
-  __mul = f; __idiv = f; __unm = f; __len = f; __sub = f;
-  __shl = f; __shr = f; __bor = f; __bxor = f;
-  __eq = f; __le = f; __lt = f; __unm = f; __len = f; __band = f;
-  __bnot = f;
+  __index = f, __add = f, __div = f, __mod = f, __concat = f, __pow = f,
+  __mul = f, __idiv = f, __unm = f, __len = f, __sub = f,
+  __shl = f, __shr = f, __bor = f, __bxor = f,
+  __eq = f, __le = f, __lt = f, __unm = f, __len = f, __band = f,
+  __bnot = f,
 })
 
 local b = setmetatable({}, getmetatable(a))

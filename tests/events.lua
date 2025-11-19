@@ -30,7 +30,7 @@ assert(pcall(setmetatable, a, {}) == false)
 a.name = "gororoba"
 assert(tostring(a) == "gororoba")
 
-local a, t = {10,20,30; x="10", y="20"}, {}
+local a, t = {10,20,30, x="10", y="20"}, {}
 assert(setmetatable(a,t) == a)
 assert(getmetatable(a) == t)
 assert(setmetatable(a,nil) == a)

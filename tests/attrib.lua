@@ -421,7 +421,7 @@ assert(a[nil] == undef)
 a = nil
 
 local a, b, c
-a = {10,9,8,7,6,5,4,3,2; [-3]='a', [f]=print, a='a', b='ab'}
+a = {10,9,8,7,6,5,4,3,2, [-3]='a', [f]=print, a='a', b='ab'}
 a, a.x, a.y = a, a[-3]
 assert(a[1]==10 and a[-3]==a.a and a[f]==print and a.x=='a' and not a.y)
 a[1], f(a)[2], b, c = {['alo']=assert}, 10, a[1], a[f], 6, 10, 23, f(a), 2

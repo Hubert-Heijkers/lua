@@ -135,7 +135,7 @@ local function f (i)
   if i > 0 then return i, f(i-1); end;
 end
 
-x = {f(3), f(5), f(10);};
+x = {f(3), f(5), f(10),};
 assert(x[1] == 3 and x[2] == 5 and x[3] == 10 and x[4] == 9 and x[12] == 1);
 assert(x[nil] == nil)
 x = {f'alo', f'xixi', nil};

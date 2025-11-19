@@ -444,7 +444,7 @@ collectgarbage()
 
 local u = setmetatable({}, {__gc = true})
 local m = getmetatable(u)
-m.x = {[{0}] = 1; [0] = {1}}; setmetatable(m.x, {__mode = "kv"});
+m.x = {[{0}] = 1, [0] = {1}}; setmetatable(m.x, {__mode = "kv"});
 m.__gc = function (o)
   assert(next(getmetatable(o).x) == nil)
   m = 10

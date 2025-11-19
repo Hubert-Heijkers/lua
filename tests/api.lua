@@ -1390,7 +1390,7 @@ testamem("table creation", function ()
 end)
 
 testamem("constructors", function ()
-  local a = {10, 20, 30, 40, 50; a=1, b=2, c=3, d=4, e=5}
+  local a = {10, 20, 30, 40, 50, a=1, b=2, c=3, d=4, e=5}
   return (type(a) == 'table' and a.e == 5)
 end)
 

@@ -51,7 +51,7 @@ end
 
 -- testing ipairs
 local x = 0
-for k,v in ipairs{10,20,30;x=12} do
+for k,v in ipairs{10,20,30,x=12} do
   x = x + 1
   assert(k == x and v == x * 10)
 end
