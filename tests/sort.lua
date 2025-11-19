@@ -43,8 +43,8 @@ a,x = unpack({1,2}, 1, 1)
 assert(a==1 and x==nil)
 
 do
-  local maxi = (1 << 31) - 1          -- maximum value for an int (usually)
-  local mini = -(1 << 31)             -- minimum value for an int (usually)
+  local maxi = (1 shl 31) - 1          -- maximum value for an int (usually)
+  local mini = -(1 shl 31)             -- minimum value for an int (usually)
   checkerror("too many results", unpack, {}, 0, maxi)
   checkerror("too many results", unpack, {}, 1, maxi)
   checkerror("too many results", unpack, {}, 0, maxI)

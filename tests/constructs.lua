@@ -33,9 +33,9 @@ assert(-3%5 == 2 and -3+5 == 2)
 assert(2*1+3/3 == 3 and 1+2 .. 3*1 == "33");
 assert(not(2+1 > 3*1) and "a".."b" > "a");
 
-assert(0xF0 | 0xCC ~ 0xAA & 0xFD == 0xF4)
-assert(0xFD & 0xAA ~ 0xCC | 0xF0 == 0xF4)
-assert(0xF0 & 0x0F + 1 == 0x10)
+assert(0xF0 bor 0xCC bxor 0xAA band 0xFD == 0xF4)
+assert(0xFD band 0xAA bxor 0xCC bor 0xF0 == 0xF4)
+assert(0xF0 band 0x0F + 1 == 0x10)
 
 assert(3^4//2^3//5 == 2)
 
@@ -67,7 +67,7 @@ do   -- testing operators with diffent kinds of constants
   --  * floats with integral values
   local operand = {3, 100, 5.0, -10, -5.0, 10000, -10000}
   local operator = {"+", "-", "*", "/", "//", "%", "^",
-                    "&", "|", "^", "<<", ">>",
+                    "band", "bor", "^", "shl", "shr",
                     "==", "~=", "<", ">", "<=", ">=",}
   for _, op in ipairs(operator) do
     local f = assert(load(string.format([[return function (x,y)
@@ -123,10 +123,10 @@ do   -- bug since 5.4.0
     assert(code() == val)
   end
 
-  check("return (1 ~ (2 or 3))", 1 ~ 2)
-  check("return (1 | (2 or 3))", 1 | 2)
+  check("return (1 bxor (2 or 3))", 1 bxor 2)
+  check("return (1 bor (2 or 3))", 1 bor 2)
   check("return (1 + (2 or 3))", 1 + 2)
-  check("return (1 << (2 or 3))", 1 << 2)
+  check("return (1 shl (2 or 3))", 1 shl 2)
 end
 
 

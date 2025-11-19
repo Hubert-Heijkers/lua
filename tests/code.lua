@@ -12,7 +12,7 @@ local k0aux <const> = 0
 local k0 <const> = k0aux
 local k1 <const> = 1
 local k3 <const> = 3
-local k6 <const> = k3 + (k3 << k0)
+local k6 <const> = k3 + (k3 shl k0)
 local kFF0 <const> = 0xFF0
 local k3_78 <const> = 3.78
 local x, k3_78_4 <const> = 10, k3_78 / 4
@@ -297,13 +297,13 @@ checkF(function () return (-k3^0 + 5) // 3.0 end, 1.0)
 checkI(function () return -k3 % 5 end, 2)
 checkF(function () return -((2.0^8 + -(-1)) % 8)/2 * 4 - 3 end, -5.0)
 checkF(function () return -((2^8 + -(-1)) % 8)//2 * 4 - 3 end, -7.0)
-checkI(function () return 0xF0.0 | 0xCC.0 ~ 0xAA & 0xFD end, 0xF4)
-checkI(function () return ~(~kFF0 | kFF0) end, 0)
-checkI(function () return ~~-1024.0 end, -1024)
-checkI(function () return ((100 << k6) << -4) >> 2 end, 100)
+checkI(function () return 0xF0.0 bor 0xCC.0 bxor 0xAA band 0xFD end, 0xF4)
+checkI(function () return bnot(bnot kFF0 bor kFF0) end, 0)
+checkI(function () return bnot bnot -1024.0 end, -1024)
+checkI(function () return ((100 shl k6) shl -4) shr 2 end, 100)
 
 -- borders around MAXARG_sBx ((((1 << 17) - 1) >> 1) == 65535)
-local a = 17; local sbx = ((1 << a) - 1) >> 1   -- avoid folding
+local a = 17; local sbx = ((1 shl a) - 1) shr 1   -- avoid folding
 local border <const> = 65535
 checkI(function () return border end, sbx)
 checkI(function () return -border end, -sbx)
@@ -333,14 +333,14 @@ checkR(function (x) return x // 1 end, 10.0, 10.0,
          'IDIVK', 'MMBINK', 'RETURN1')
 checkR(function (x) return x % (100 - 10) end, 91, 1,
          'MODK', 'MMBINK', 'RETURN1')
-checkR(function (x) return k1 << x end, 3, 8, 'SHLI', 'MMBINI', 'RETURN1')
-checkR(function (x) return x << 127 end, 10, 0, 'SHRI', 'MMBINI', 'RETURN1')
-checkR(function (x) return x << -127 end, 10, 0, 'SHRI', 'MMBINI', 'RETURN1')
-checkR(function (x) return x >> 128 end, 8, 0, 'SHRI', 'MMBINI', 'RETURN1')
-checkR(function (x) return x >> -127 end, 8, 0, 'SHRI', 'MMBINI', 'RETURN1')
-checkR(function (x) return x & 1 end, 9, 1, 'BANDK', 'MMBINK', 'RETURN1')
-checkR(function (x) return 10 | x end, 1, 11, 'BORK', 'MMBINK', 'RETURN1')
-checkR(function (x) return -10 ~ x end, -1, 9, 'BXORK', 'MMBINK', 'RETURN1')
+checkR(function (x) return k1 shl x end, 3, 8, 'SHLI', 'MMBINI', 'RETURN1')
+checkR(function (x) return x shl 127 end, 10, 0, 'SHRI', 'MMBINI', 'RETURN1')
+checkR(function (x) return x shl -127 end, 10, 0, 'SHRI', 'MMBINI', 'RETURN1')
+checkR(function (x) return x shr 128 end, 8, 0, 'SHRI', 'MMBINI', 'RETURN1')
+checkR(function (x) return x shr -127 end, 8, 0, 'SHRI', 'MMBINI', 'RETURN1')
+checkR(function (x) return x band 1 end, 9, 1, 'BANDK', 'MMBINK', 'RETURN1')
+checkR(function (x) return 10 bor x end, 1, 11, 'BORK', 'MMBINK', 'RETURN1')
+checkR(function (x) return -10 bxor x end, -1, 9, 'BXORK', 'MMBINK', 'RETURN1')
 
 -- K operands in arithmetic operations
 checkR(function (x) return x + 0.0 end, 1, 1.0, 'ADDK', 'MMBINK', 'RETURN1')
@@ -360,9 +360,9 @@ check(function () return -0.0 end, 'LOADF', 'UNM', 'RETURN1')
 check(function () return k3/0 end, 'LOADI', 'DIVK', 'MMBINK', 'RETURN1')
 check(function () return 0%0 end, 'LOADI', 'MODK', 'MMBINK', 'RETURN1')
 check(function () return -4//0 end, 'LOADI', 'IDIVK', 'MMBINK', 'RETURN1')
-check(function (x) return x >> 2.0 end, 'LOADF', 'SHR', 'MMBIN', 'RETURN1')
-check(function (x) return x << 128 end, 'LOADI', 'SHL', 'MMBIN', 'RETURN1')
-check(function (x) return x & 2.0 end, 'LOADF', 'BAND', 'MMBIN', 'RETURN1')
+check(function (x) return x shr 2.0 end, 'LOADF', 'SHR', 'MMBIN', 'RETURN1')
+check(function (x) return x shl 128 end, 'LOADI', 'SHL', 'MMBIN', 'RETURN1')
+check(function (x) return x band 2.0 end, 'LOADF', 'BAND', 'MMBIN', 'RETURN1')
 
 -- basic 'for' loops
 check(function () for i = -10, 10.5 do end end,

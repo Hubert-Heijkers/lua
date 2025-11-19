@@ -175,7 +175,7 @@ assert(utf8.char() == "")
 assert(utf8.char(0, 97, 98, 99, 1) == "\0abc\1")
 
 assert(utf8.codepoint(utf8.char(0x10FFFF)) == 0x10FFFF)
-assert(utf8.codepoint(utf8.char(0x7FFFFFFF), 1, 1, true) == (1<<31) - 1)
+assert(utf8.codepoint(utf8.char(0x7FFFFFFF), 1, 1, true) == (1 shl 31) - 1)
 
 checkerror("value out of range", utf8.char, 0x7FFFFFFF + 1)
 checkerror("value out of range", utf8.char, -1)

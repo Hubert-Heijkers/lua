@@ -166,21 +166,21 @@ assert(a/0 == a); checkcap{"div", a, 0}
 assert(a/0.0 == a); checkcap{"div", a, 0.0}
 assert(a%2 == a); checkcap{"mod", a, 2}
 assert(a // (1/0) == a); checkcap{"idiv", a, 1/0}
-;(function () assert(a & "hi" == a) end)(); checkcap{"band", a, "hi"}
-;(function () assert(10 & a  == 10) end)(); checkcap{"band", 10, a}
-;(function () assert(a | 10  == a) end)(); checkcap{"bor", a, 10}
-assert(a | "hi" == a); checkcap{"bor", a, "hi"}
-assert("hi" ~ a == "hi"); checkcap{"bxor", "hi", a}
-;(function () assert(10 ~ a == 10) end)(); checkcap{"bxor", 10, a}
+;(function () assert(a band "hi" == a) end)(); checkcap{"band", a, "hi"}
+;(function () assert(10 band a  == 10) end)(); checkcap{"band", 10, a}
+;(function () assert(a bor 10  == a) end)(); checkcap{"bor", a, 10}
+assert(a bor "hi" == a); checkcap{"bor", a, "hi"}
+assert("hi" bxor a == "hi"); checkcap{"bxor", "hi", a}
+;(function () assert(10 bxor a == 10) end)(); checkcap{"bxor", 10, a}
 assert(-a == a); checkcap{"unm", a, a}
 assert(a^4.0 == a); checkcap{"pow", a, 4.0}
 assert(a^'4' == a); checkcap{"pow", a, '4'}
 assert(4^a == 4); checkcap{"pow", 4, a}
 assert('4'^a == '4'); checkcap{"pow", '4', a}
 assert(#a == a); checkcap{"len", a, a}
-assert(~a == a); checkcap{"bnot", a, a}
-assert(a << 3 == a); checkcap{"shl", a, 3}
-assert(1.5 >> a == 1.5); checkcap{"shr", 1.5, a}
+assert(bnot a == a); checkcap{"bnot", a, a}
+assert(a shl 3 == a); checkcap{"shl", a, 3}
+assert(1.5 shr a == 1.5); checkcap{"shr", 1.5, a}
 
 -- for comparison operators, all results are true
 assert(5.0 > a); checkcap{"lt", a, 5.0}

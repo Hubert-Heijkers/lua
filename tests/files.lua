@@ -826,14 +826,14 @@ checkerr("missing", os.time, {hour = 12})   -- missing date
 
 if string.packsize("i") == 4 then   -- 4-byte ints
   checkerr("field 'year' is out-of-bound", os.time,
-              {year = -(1 << 31) + 1899, month = 1, day = 1})
+              {year = -(1 shl 31) + 1899, month = 1, day = 1})
 
   checkerr("field 'year' is out-of-bound", os.time,
-              {year = -(1 << 31), month = 1, day = 1})
+              {year = -(1 shl 31), month = 1, day = 1})
 
   if math.maxinteger > 2^31 then   -- larger lua_integer?
     checkerr("field 'year' is out-of-bound", os.time,
-                {year = (1 << 31) + 1900, month = 1, day = 1})
+                {year = (1 shl 31) + 1900, month = 1, day = 1})
   end
 end
 
@@ -845,11 +845,11 @@ if not _port then
 
   -- test large dates (assume at least 4-byte ints and time_t)
   local t0 = os.time{year = 1970, month = 1, day = 0}
-  local t1 = os.time{year = 1970, month = 1, day = 0, sec = (1 << 31) - 1}
-  assert(t1 - t0 == (1 << 31) - 1)
+  local t1 = os.time{year = 1970, month = 1, day = 0, sec = (1 shl 31) - 1}
+  assert(t1 - t0 == (1 shl 31) - 1)
   t0 = os.time{year = 1970, month = 1, day = 1}
-  t1 = os.time{year = 1970, month = 1, day = 1, sec = -(1 << 31)}
-  assert(t1 - t0 == -(1 << 31))
+  t1 = os.time{year = 1970, month = 1, day = 1, sec = -(1 shl 31)}
+  assert(t1 - t0 == -(1 shl 31))
 
   -- test out-of-range dates (at least for Unix)
   if maxint >= 2^62 then  -- cannot do these tests in Small Lua
@@ -867,11 +867,11 @@ if not _port then
 
         -- this is the maximum year
         assert(tonumber(os.time
-          {year=(1 << 31) + 1899, month=12, day=31, hour=23, min=59, sec=59}))
+          {year=(1 shl 31) + 1899, month=12, day=31, hour=23, min=59, sec=59}))
 
         -- this is too much
         checkerr("represented", os.time,
-          {year=(1 << 31) + 1899, month=12, day=31, hour=23, min=59, sec=60})
+          {year=(1 shl 31) + 1899, month=12, day=31, hour=23, min=59, sec=60})
       end
 
       -- internal 'int' fields cannot hold these values
@@ -879,10 +879,10 @@ if not _port then
                   {year = 0, month = 1, day = 2^32})
 
       checkerr("field 'month' is out-of-bound", os.time,
-                  {year = 0, month = -((1 << 31) + 1), day = 1})
+                  {year = 0, month = -((1 shl 31) + 1), day = 1})
 
       checkerr("field 'year' is out-of-bound", os.time,
-                  {year = (1 << 31) + 1900, month = 1, day = 1})
+                  {year = (1 shl 31) + 1900, month = 1, day = 1})
 
     else    -- 8-byte ints
       -- assume time_t has 8 bytes too

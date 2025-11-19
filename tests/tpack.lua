@@ -94,7 +94,7 @@ end
 for i = 1, sizeLI do
   local lstr = "\1\2\3\4\5\6\7\8\9\10\11\12\13"
   local lnum = 0x13121110090807060504030201
-  local n = lnum & (~(-1 << (i * 8)))
+  local n = lnum band (bnot(-1 shl (i * 8)))
   local s = string.sub(lstr, 1, i)
   assert(pack("<i" .. i, n) == s)
   assert(pack(">i" .. i, n) == s:reverse())
@@ -146,9 +146,9 @@ end
 
 -- overflow in packing
 for i = 1, sizeLI - 1 do
-  local umax = (1 << (i * 8)) - 1
-  local max = umax >> 1
-  local min = ~max
+  local umax = (1 shl (i * 8)) - 1
+  local max = umax shr 1
+  local min = bnot max
   checkerror("overflow", pack, "<I" .. i, -1)
   checkerror("overflow", pack, "<I" .. i, min)
   checkerror("overflow", pack, ">I" .. i, umax + 1)

@@ -48,31 +48,31 @@ local smt = getmetatable("")
 
 smt.__band = function (x, y)
   local x, y = checkargs(x, y, "__band")
-  return y and x & y or x
+  return y and x band y or x
 end
 
 smt.__bor = function (x, y)
   local x, y = checkargs(x, y, "__bor")
-  return y and x | y or x
+  return y and x bor y or x
 end
 
 smt.__bxor = function (x, y)
   local x, y = checkargs(x, y, "__bxor")
-  return y and x ~ y or x
+  return y and x bxor y or x
 end
 
 smt.__shl = function (x, y)
   local x, y = checkargs(x, y, "__shl")
-  return y and x << y or x
+  return y and x shl y or x
 end
 
 smt.__shr = function (x, y)
   local x, y = checkargs(x, y, "__shr")
-  return y and x >> y or x
+  return y and x shr y or x
 end
 
 smt.__bnot = function (x)
   local x, y = checkargs(x, x, "__bnot")
-  return y and ~x or x
+  return y and bnot x or x
 end
 

@@ -810,19 +810,19 @@ local mt = {
   __pow = function(a,b) coroutine.yield(nil, "pow"); return val(a) ^ val(b) end,
   __mod = function(a,b) coroutine.yield(nil, "mod"); return val(a) % val(b) end,
   __unm = function(a,b) coroutine.yield(nil, "unm"); return -val(a) end,
-  __bnot = function(a,b) coroutine.yield(nil, "bnot"); return ~val(a) end,
+  __bnot = function(a,b) coroutine.yield(nil, "bnot"); return bnot val(a) end,
   __shl = function(a,b) coroutine.yield(nil, "shl");
-                        return val(a) << val(b) end,
+                        return val(a) shl val(b) end,
   __shr = function(a,b) coroutine.yield(nil, "shr");
-                        return val(a) >> val(b) end,
+                        return val(a) shr val(b) end,
   __band = function(a,b)
              coroutine.yield(nil, "band")
-             return val(a) & val(b)
+             return val(a) band val(b)
            end,
   __bor = function(a,b) coroutine.yield(nil, "bor");
-                        return val(a) | val(b) end,
+                        return val(a) bor val(b) end,
   __bxor = function(a,b) coroutine.yield(nil, "bxor");
-                         return val(a) ~ val(b) end,
+                         return val(a) bxor val(b) end,
 
   __concat = function(a,b)
                coroutine.yield(nil, "concat");
@@ -861,7 +861,7 @@ assert(run(function () if (a<=b) then return '<=' else return '>' end end,
 assert(run(function () if (a==b) then return '==' else return '~=' end end,
        {"eq"}) == "~=")
 
-assert(run(function () return a & b + a end, {"add", "band"}) == 2)
+assert(run(function () return a band b + a end, {"add", "band"}) == 2)
 
 assert(run(function () return 1 + a end, {"add"}) == 11)
 assert(run(function () return a - 25 end, {"sub"}) == -15)
@@ -893,20 +893,20 @@ assert(run(function () return a1000 // 500 end, {"idiv"}) == 2)
 
 assert(run(function () return a % b end, {"mod"}) == 10)
 
-assert(run(function () return ~a & b end, {"bnot", "band"}) == ~10 & 12)
-assert(run(function () return a | b end, {"bor"}) == 10 | 12)
-assert(run(function () return a ~ b end, {"bxor"}) == 10 ~ 12)
-assert(run(function () return a << b end, {"shl"}) == 10 << 12)
-assert(run(function () return a >> b end, {"shr"}) == 10 >> 12)
+assert(run(function () return bnot a band b end, {"bnot", "band"}) == bnot 10 band 12)
+assert(run(function () return a bor b end, {"bor"}) == 10 bor 12)
+assert(run(function () return a bxor b end, {"bxor"}) == 10 bxor 12)
+assert(run(function () return a shl b end, {"shl"}) == 10 shl 12)
+assert(run(function () return a shr b end, {"shr"}) == 10 shr 12)
 
-assert(run(function () return 10 & b end, {"band"}) == 10 & 12)
-assert(run(function () return a | 2 end, {"bor"}) == 10 | 2)
-assert(run(function () return a ~ 2 end, {"bxor"}) == 10 ~ 2)
-assert(run(function () return a >> 2 end, {"shr"}) == 10 >> 2)
-assert(run(function () return 1 >> a end, {"shr"}) == 1 >> 10)
-assert(run(function () return a << 2 end, {"shl"}) == 10 << 2)
-assert(run(function () return 1 << a end, {"shl"}) == 1 << 10)
-assert(run(function () return 2 ~ a end, {"bxor"}) == 2 ~ 10)
+assert(run(function () return 10 band b end, {"band"}) == 10 band 12)
+assert(run(function () return a bor 2 end, {"bor"}) == 10 bor 2)
+assert(run(function () return a bxor 2 end, {"bxor"}) == 10 bxor 2)
+assert(run(function () return a shr 2 end, {"shr"}) == 10 shr 2)
+assert(run(function () return 1 shr a end, {"shr"}) == 1 shr 10)
+assert(run(function () return a shl 2 end, {"shl"}) == 10 shl 2)
+assert(run(function () return 1 shl a end, {"shl"}) == 1 shl 10)
+assert(run(function () return 2 bxor a end, {"bxor"}) == 2 bxor 10)
 
 
 assert(run(function () return a..b end, {"concat"}) == "1012")

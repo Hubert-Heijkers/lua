@@ -7,9 +7,9 @@ local minint <const> = math.mininteger
 local maxint <const> = math.maxinteger
 
 local intbits <const> = math.floor(math.log(maxint, 2) + 0.5) + 1
-assert((1 << intbits) == 0)
+assert((1 shl intbits) == 0)
 
-assert(minint == 1 << (intbits - 1))
+assert(minint == 1 shl (intbits - 1))
 assert(maxint == minint - 1)
 
 -- number of bits in the mantissa of a floating-point number
@@ -181,11 +181,11 @@ end
 
 -- comparison between floats and integers (border cases)
 if floatbits < intbits then
-  assert(2.0^floatbits == (1 << floatbits))
-  assert(2.0^floatbits - 1.0 == (1 << floatbits) - 1.0)
-  assert(2.0^floatbits - 1.0 ~= (1 << floatbits))
+  assert(2.0^floatbits == (1 shl floatbits))
+  assert(2.0^floatbits - 1.0 == (1 shl floatbits) - 1.0)
+  assert(2.0^floatbits - 1.0 ~= (1 shl floatbits))
   -- float is rounded, int is not
-  assert(2.0^floatbits + 1.0 ~= (1 << floatbits) + 1)
+  assert(2.0^floatbits + 1.0 ~= (1 shl floatbits) + 1)
 else   -- floats can express all integers with full accuracy
   assert(maxint == maxint + 0.0)
   assert(maxint - 1 == maxint - 1.0)
@@ -223,7 +223,7 @@ end
 if floatbits < intbits then
   print("testing order (floats cannot represent all integers)")
   local fmax = 2^floatbits
-  local ifmax = fmax | 0
+  local ifmax = fmax bor 0
   assert(fmax < ifmax + 1)
   assert(fmax - 1 < ifmax)
   assert(-(fmax - 1) > -ifmax)
@@ -288,15 +288,15 @@ local function checkcompt (msg, code)
   checkerror(msg, assert(load(code)))
 end
 checkcompt("divide by zero", "return 2 // 0")
-checkcompt(msgf2i, "return 2.3 >> 0")
-checkcompt(msgf2i, ("return 2.0^%d & 1"):format(intbits - 1))
-checkcompt("field 'huge'", "return math.huge << 1")
-checkcompt(msgf2i, ("return 1 | 2.0^%d"):format(intbits - 1))
-checkcompt(msgf2i, "return 2.3 ~ 0.0")
+checkcompt(msgf2i, "return 2.3 shr 0")
+checkcompt(msgf2i, ("return 2.0^%d band 1"):format(intbits - 1))
+checkcompt("field 'huge'", "return math.huge shl 1")
+checkcompt(msgf2i, ("return 1 bor 2.0^%d"):format(intbits - 1))
+checkcompt(msgf2i, "return 2.3 bxor 0.0")
 
 
 -- testing overflow errors when converting from float to integer (runtime)
-local function f2i (x) return x | x end
+local function f2i (x) return x bor x end
 checkerror(msgf2i, f2i, math.huge)     -- +inf
 checkerror(msgf2i, f2i, -math.huge)    -- -inf
 checkerror(msgf2i, f2i, 0/0)           -- NaN
@@ -306,11 +306,11 @@ if floatbits < intbits then
   assert(maxint + 1.0 == maxint + 0.0)
   assert(minint - 1.0 == minint + 0.0)
   checkerror(msgf2i, f2i, maxint + 0.0)
-  assert(f2i(2.0^(intbits - 2)) == 1 << (intbits - 2))
-  assert(f2i(-2.0^(intbits - 2)) == -(1 << (intbits - 2)))
-  assert((2.0^(floatbits - 1) + 1.0) // 1 == (1 << (floatbits - 1)) + 1)
+  assert(f2i(2.0^(intbits - 2)) == 1 shl (intbits - 2))
+  assert(f2i(-2.0^(intbits - 2)) == -(1 shl (intbits - 2)))
+  assert((2.0^(floatbits - 1) + 1.0) // 1 == (1 shl (floatbits - 1)) + 1)
   -- maximum integer representable as a float
-  local mf = maxint - (1 << (floatbits - intbits)) + 1
+  local mf = maxint - (1 shl (floatbits - intbits)) + 1
   assert(f2i(mf + 0.0) == mf)  -- OK up to here
   mf = mf + 1
   assert(f2i(mf + 0.0) ~= mf)   -- no more representable
@@ -395,7 +395,7 @@ assert(not tonumber'+ 0.01' and not tonumber'+.e1' and
 assert(tonumber('-012') == -010-2)
 assert(tonumber('-1.2e2') == - - -120)
 
-assert(tonumber("0xffffffffffff") == (1 << (4*12)) - 1)
+assert(tonumber("0xffffffffffff") == (1 shl (4*12)) - 1)
 assert(tonumber("0x"..string.rep("f", (intbits//4))) == -1)
 assert(tonumber("-0x"..string.rep("f", (intbits//4))) == 1)
 
@@ -409,9 +409,9 @@ assert(tonumber('  +1Z  ', 36) == 36 + 35)
 assert(tonumber('  -1z  ', 36) == -36 + -35)
 assert(tonumber('-fFfa', 16) == -(10+(16*(15+(16*(15+(16*15)))))))
 assert(tonumber(string.rep('1', (intbits - 2)), 2) + 1 == 2^(intbits - 2))
-assert(tonumber('ffffFFFF', 16)+1 == (1 << 32))
-assert(tonumber('0ffffFFFF', 16)+1 == (1 << 32))
-assert(tonumber('-0ffffffFFFF', 16) - 1 == -(1 << 40))
+assert(tonumber('ffffFFFF', 16)+1 == (1 shl 32))
+assert(tonumber('0ffffFFFF', 16)+1 == (1 shl 32))
+assert(tonumber('-0ffffffFFFF', 16) - 1 == -(1 shl 40))
 for i = 2,36 do
   local i2 = i * i
   local i10 = i2 * i2 * i2 * i2 * i2      -- i^10
@@ -490,10 +490,10 @@ assert(not tonumber('0x5p+-2'))
 
 assert(0x10 == 16 and 0xfff == 2^12 - 1 and 0XFB == 251)
 assert(0x0p12 == 0 and 0x.0p-3 == 0)
-assert(0xFFFFFFFF == (1 << 32) - 1)
+assert(0xFFFFFFFF == (1 shl 32) - 1)
 assert(tonumber('+0x2') == 2)
 assert(tonumber('-0xaA') == -170)
-assert(tonumber('-0xffFFFfff') == -(1 << 32) + 1)
+assert(tonumber('-0xffFFFfff') == -(1 shl 32) + 1)
 
 -- possible confusion with decimal exponent
 assert(0E+1 == 0 and 0xE+1 == 15 and 0xe-1 == 13)
@@ -589,15 +589,15 @@ end
 for i = 0, 10 do
   for j = -10, 10 do
     if j ~= 0 then
-      assert((2^i) % j == (1 << i) % j)
+      assert((2^i) % j == (1 shl i) % j)
     end
   end
 end
 
 do    -- precision of module for large numbers
   local i = 10
-  while (1 << i) > 0 do
-    assert((1 << i) % 3 == i % 2 + 1)
+  while (1 shl i) > 0 do
+    assert((1 shl i) % 3 == i % 2 + 1)
     i = i + 1
   end
 
@@ -821,7 +821,7 @@ do
 
   math.randomseed(1007)
   -- get the low 'intbits' of the 64-bit expected result
-  local res = (h << 32 | l) & ~(~0 << intbits)
+  local res = (h shl 32 bor l) band bnot(bnot 0 shl intbits)
   assert(random(0) == res)
 
   math.randomseed(1007, 0)
@@ -830,10 +830,10 @@ do
   local res
   if floatbits <= 32 then
     -- get all bits from the higher half
-    res = (h >> (32 - floatbits)) % 2^32
+    res = (h shr (32 - floatbits)) % 2^32
   else
     -- get 32 bits from the higher half and the rest from the lower half
-    res = (h % 2^32) * 2^(floatbits - 32) + ((l >> (64 - floatbits)) % 2^32)
+    res = (h % 2^32) * 2^(floatbits - 32) + ((l shr (64 - floatbits)) % 2^32)
   end
   local rand = random()
   assert(eq(rand, 0x0.7a7040a5a323c9d6, 2^-floatbits))
@@ -903,10 +903,10 @@ do   -- test random for full integers
     low = min(low, t)
     local bit = i % intbits     -- bit to be tested
     -- increment its count if it is set
-    counts[bit + 1] = counts[bit + 1] + ((t >> bit) & 1)
+    counts[bit + 1] = counts[bit + 1] + ((t shr bit) band 1)
   end
   totalrounds = totalrounds + rounds
-  local lim = maxint >> 10
+  local lim = maxint shr 10
   if not (maxint - up < lim and low - minint < lim) then
     goto doagain
   end
@@ -995,7 +995,7 @@ do
       goto doagain
     end
     -- min and max not too far from formal min and max
-    local diff = (p2 - p1) >> 4
+    local diff = (p2 - p1) shr 4
     if not (min < p1 + diff and max > p2 - diff) then
       goto doagain
     end
@@ -1008,7 +1008,7 @@ do
   aux(minint, maxint)
   aux(minint + 1, maxint)
   aux(minint, maxint - 1)
-  aux(0, 1 << (intbits - 5))
+  aux(0, 1 shl (intbits - 5))
 end
 
 
