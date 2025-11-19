@@ -542,7 +542,7 @@ Behavior similar to the addition operation.
 </li>
 
 <li><b><code>__band</code>: </b>
-the bitwise AND (<code>&amp;</code>) operation.
+the bitwise AND (<code>band</code>) operation.
 Behavior similar to the addition operation,
 except that Lua will try a metamethod
 if any operand is neither an integer
@@ -550,27 +550,27 @@ nor a float coercible to an integer (see <a href="#3.4.3">&sect;3.4.3</a>).
 </li>
 
 <li><b><code>__bor</code>: </b>
-the bitwise OR (<code>|</code>) operation.
+the bitwise OR (<code>bor</code>) operation.
 Behavior similar to the bitwise AND operation.
 </li>
 
 <li><b><code>__bxor</code>: </b>
-the bitwise exclusive OR (binary <code>~</code>) operation.
+the bitwise exclusive OR (binary <code>bxor</code>) operation.
 Behavior similar to the bitwise AND operation.
 </li>
 
 <li><b><code>__bnot</code>: </b>
-the bitwise NOT (unary <code>~</code>) operation.
+the bitwise NOT (unary <code>bnot</code>) operation.
 Behavior similar to the bitwise AND operation.
 </li>
 
 <li><b><code>__shl</code>: </b>
-the bitwise left shift (<code>&lt;&lt;</code>) operation.
+the bitwise left shift (<code>shl</code>) operation.
 Behavior similar to the bitwise AND operation.
 </li>
 
 <li><b><code>__shr</code>: </b>
-the bitwise right shift (<code>&gt;&gt;</code>) operation.
+the bitwise right shift (<code>shr</code>) operation.
 Behavior similar to the bitwise AND operation.
 </li>
 
@@ -1238,9 +1238,10 @@ and cannot be used as names:
 
 
 <pre>
-     and       break     do        else      elseif    end
-     false     for       function  goto      if        in
-     local     nil       not       or        repeat    return
+     and       band      bnot      bor       break     bxor
+     do        else      elseif    end       false     for
+     function  goto      if        in        local     nil
+     not       or        repeat    return    shl       shr
      then      true      until     while
 </pre>
 
@@ -1259,10 +1260,9 @@ The following strings denote other tokens:
 
 <pre>
      +     -     *     /     %     ^     #
-     &amp;     ~     |     &lt;&lt;    &gt;&gt;    //
-     ==    ~=    &lt;=    &gt;=    &lt;     &gt;     =
-     (     )     {     }     [     ]     ::
-     ;     :     ,     .     ..    ...
+     //    ==    ~=    &lt;=    &gt;=    &lt;     &gt;
+     =     (     )     {     }     [     ]
+     ::    ;     :     ,     .     ..    ...
 </pre>
 
 <p>
@@ -2124,12 +2124,12 @@ all operations <em>wrap around</em>.
 Lua supports the following bitwise operators:
 
 <ul>
-<li><b><code>&amp;</code>: </b>bitwise AND</li>
-<li><b><code>&#124;</code>: </b>bitwise OR</li>
-<li><b><code>~</code>: </b>bitwise exclusive OR</li>
-<li><b><code>&gt;&gt;</code>: </b>right shift</li>
-<li><b><code>&lt;&lt;</code>: </b>left shift</li>
-<li><b><code>~</code>: </b>unary bitwise NOT</li>
+<li><b><code>band</code>: </b>bitwise AND</li>
+<li><b><code>bor</code>: </b>bitwise OR</li>
+<li><b><code>bxor</code>: </b>bitwise exclusive OR</li>
+<li><b><code>shr</code>: </b>right shift</li>
+<li><b><code>shl</code>: </b>left shift</li>
+<li><b><code>bnot</code>: </b>unary bitwise NOT</li>
 </ul>
 
 <p>
@@ -2431,14 +2431,14 @@ from lower to higher priority:
      or
      and
      &lt;     &gt;     &lt;=    &gt;=    ~=    ==
-     |
-     ~
-     &amp;
-     &lt;&lt;    &gt;&gt;
+     bor
+     bxor
+     band
+     shl   shr
      ..
      +     -
      *     /     //    %
-     unary operators (not   #     -     ~)
+     unary operators (not   #     -     bnot)
      ^
 </pre><p>
 As usual,
@@ -3627,12 +3627,12 @@ The value of <code>op</code> must be one of the following constants:
 <li><b><a name="pdf-LUA_OPMOD"><code>LUA_OPMOD</code></a>: </b> performs modulo (<code>%</code>)</li>
 <li><b><a name="pdf-LUA_OPPOW"><code>LUA_OPPOW</code></a>: </b> performs exponentiation (<code>^</code>)</li>
 <li><b><a name="pdf-LUA_OPUNM"><code>LUA_OPUNM</code></a>: </b> performs mathematical negation (unary <code>-</code>)</li>
-<li><b><a name="pdf-LUA_OPBNOT"><code>LUA_OPBNOT</code></a>: </b> performs bitwise NOT (<code>~</code>)</li>
-<li><b><a name="pdf-LUA_OPBAND"><code>LUA_OPBAND</code></a>: </b> performs bitwise AND (<code>&amp;</code>)</li>
-<li><b><a name="pdf-LUA_OPBOR"><code>LUA_OPBOR</code></a>: </b> performs bitwise OR (<code>|</code>)</li>
-<li><b><a name="pdf-LUA_OPBXOR"><code>LUA_OPBXOR</code></a>: </b> performs bitwise exclusive OR (<code>~</code>)</li>
-<li><b><a name="pdf-LUA_OPSHL"><code>LUA_OPSHL</code></a>: </b> performs left shift (<code>&lt;&lt;</code>)</li>
-<li><b><a name="pdf-LUA_OPSHR"><code>LUA_OPSHR</code></a>: </b> performs right shift (<code>&gt;&gt;</code>)</li>
+<li><b><a name="pdf-LUA_OPBNOT"><code>LUA_OPBNOT</code></a>: </b> performs bitwise NOT (<code>bnot</code>)</li>
+<li><b><a name="pdf-LUA_OPBAND"><code>LUA_OPBAND</code></a>: </b> performs bitwise AND (<code>band</code>)</li>
+<li><b><a name="pdf-LUA_OPBOR"><code>LUA_OPBOR</code></a>: </b> performs bitwise OR (<code>bor</code>)</li>
+<li><b><a name="pdf-LUA_OPBXOR"><code>LUA_OPBXOR</code></a>: </b> performs bitwise exclusive OR (<code>bxor</code>)</li>
+<li><b><a name="pdf-LUA_OPSHL"><code>LUA_OPSHL</code></a>: </b> performs left shift (<code>shl</code>)</li>
+<li><b><a name="pdf-LUA_OPSHR"><code>LUA_OPSHR</code></a>: </b> performs right shift (<code>shr</code>)</li>
 
 </ul>
 
@@ -12033,11 +12033,11 @@ and LiteralString, see <a href="#3.1">&sect;3.1</a>.)
 	fieldsep ::= &lsquo;<b>,</b>&rsquo; | &lsquo;<b>;</b>&rsquo;
 
 	binop ::=  &lsquo;<b>+</b>&rsquo; | &lsquo;<b>-</b>&rsquo; | &lsquo;<b>*</b>&rsquo; | &lsquo;<b>/</b>&rsquo; | &lsquo;<b>//</b>&rsquo; | &lsquo;<b>^</b>&rsquo; | &lsquo;<b>%</b>&rsquo; | 
-		 &lsquo;<b>&amp;</b>&rsquo; | &lsquo;<b>~</b>&rsquo; | &lsquo;<b>|</b>&rsquo; | &lsquo;<b>&gt;&gt;</b>&rsquo; | &lsquo;<b>&lt;&lt;</b>&rsquo; | &lsquo;<b>..</b>&rsquo; | 
+		 &lsquo;<b>band</b>&rsquo; | &lsquo;<b>bor</b>&rsquo; | &lsquo;<b>bxor</b>&rsquo; | &lsquo;<b>shl</b>&rsquo; | &lsquo;<b>shr</b>&rsquo; | &lsquo;<b>..</b>&rsquo; | 
 		 &lsquo;<b>&lt;</b>&rsquo; | &lsquo;<b>&lt;=</b>&rsquo; | &lsquo;<b>&gt;</b>&rsquo; | &lsquo;<b>&gt;=</b>&rsquo; | &lsquo;<b>==</b>&rsquo; | &lsquo;<b>~=</b>&rsquo; | 
 		 <b>and</b> | <b>or</b>
 
-	unop ::= &lsquo;<b>-</b>&rsquo; | <b>not</b> | &lsquo;<b>#</b>&rsquo; | &lsquo;<b>~</b>&rsquo;
+	unop ::= &lsquo;<b>-</b>&rsquo; | <b>not</b> | &lsquo;<b>#</b>&rsquo; | &lsquo;<b>bnot</b>&rsquo;
 
 </pre>
 
